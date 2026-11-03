@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AdPulse Mini - Performance Marketing Intelligence Engine
  * Đề 7: Dashboard KPI Chiến Dịch Mini
  */
@@ -65,6 +65,7 @@ let appState = {
   aov: 800000, // Giá trị đơn hàng trung bình tạm tính doanh thu
   rows: JSON.parse(JSON.stringify(PRESET_SCENARIOS.growth.rows))
 };
+window.appState = appState;
 
 // ================= TIỆN ÍCH ĐỊNH DẠNG SỐ LIỆU =================
 function formatNumber(n) {
@@ -653,6 +654,13 @@ function renderFunnel(stats) {
 
 // ================= AI CHẨN ĐOÁN XU HƯỚNG & 03 KHUYẾN NGHỊ =================
 function renderAIDiagnostics(stats) {
+  if (window.AIReportEngine) {
+    window.AIReportEngine.renderToUI(stats, {
+      targetMaxCPA: appState.targetMaxCPA,
+      targetMinCTR: appState.targetMinCTR
+    });
+    return;
+  }
   const healthBadge = document.getElementById('ai-health-badge');
   const trendList = document.getElementById('ai-trend-list');
   const recContainer = document.getElementById('ai-recommendations-list');
@@ -879,6 +887,27 @@ function renderDataTable(stats) {
 function renderReportModalText(stats) {
   const textarea = document.getElementById('report-text-content');
   if (!textarea) return;
+
+  if (window.AIReportEngine) {
+    document.querySelectorAll('[data-report-tone]').forEach((btn) => {
+      const tone = btn.getAttribute('data-report-tone');
+      const baseLabel = btn.getAttribute('data-label');
+      if (tone === appState.reportTone) {
+        btn.className = 'px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-semibold shadow-xs';
+        btn.textContent = `${baseLabel} (Đang chọn)`;
+      } else {
+        btn.className = 'px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm transition-colors';
+        btn.textContent = baseLabel;
+      }
+    });
+    textarea.value = window.AIReportEngine.generateExportText(
+      stats,
+      appState.reportTone,
+      appState.campaignName,
+      { targetMaxCPA: appState.targetMaxCPA, targetMinCTR: appState.targetMinCTR }
+    );
+    return;
+  }
 
   // Cập nhật nút chọn giọng văn
   document.querySelectorAll('[data-report-tone]').forEach((btn) => {
