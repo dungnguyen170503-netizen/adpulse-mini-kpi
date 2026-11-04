@@ -1,43 +1,55 @@
-# AdPulse Mini — Dashboard KPI Chiến Dịch Quảng Cáo Tự Động (Đề 7)
+# AdPulse - Dashboard KPI Chiến Dịch Mini (Vibe Coding - Đề 7)
 
-> **Bài dự thi Vibe Coding — Đề 7: Dashboard KPI chiến dịch mini**  
-> Giải pháp theo dõi, tính toán chỉ số tự động, trực quan hóa phễu chuyển đổi và kiểm toán hiệu suất AI dành cho Marketer.
-
----
-
-## 🎯 Tính năng hoàn thiện theo Đề bài & Mở rộng
-
-1. **Bảng nhập số liệu nhiều dòng & Tự động lưu `localStorage`:**
-   - Hỗ trợ nhập và chỉnh sửa trực tiếp nhiều ngày (`Ngày`, `Reach`, `Click`, `Chi phí VNĐ`, `Số đơn hàng`).
-   - Hỗ trợ `+ Thêm 1 ngày`, `+ Thêm nhanh 7 ngày`, `Xóa dòng`, `Xóa trắng` và **3 Kịch bản dữ liệu mẫu 1-Click** (*Tăng trưởng tốt*, *Đốt tiền*, *Bão hòa*) giúp trải nghiệm chấm bài tức thì.
-2. **Tự động tính toán hệ thống chỉ số Marketing:**
-   - Tự động tính `CTR (%)`, `CPC (đ)`, `Chi phí trên mỗi đơn hàng - CPA (đ)` cho từng ngày và toàn chu kỳ.
-   - Mở rộng tự động chỉ số `CR (%)` (Tỷ lệ chốt đơn từ Click) và `CPM (đ)` (Chi phí mỗi 1.000 lượt tiếp cận).
-3. **Biểu đồ Đường / Cột kép & Phễu chuyển đổi (Conversion Funnel):**
-   - Biểu đồ kết hợp 2 trục tung (Cột + Đường) giải quyết triệt để độ lệch đơn vị giữa Chi phí (triệu đồng) và Đơn hàng (chục đơn).
-   - Hỗ trợ 3 góc nhìn: `Chi phí & Đơn hàng`, `Reach & Click`, `Biến động CPA & CPC`.
-   - Trực quan hóa Phễu chuyển đổi 3 tầng: `Reach` ➔ `Click` ➔ `Đơn hàng`.
-4. **Kiểm toán Hiệu suất AI — Nhận xét xu hướng & 03 Gợi ý cải thiện:**
-   - Tự động đối soát nửa đầu kỳ vs. nửa cuối kỳ để nhận diện xu hướng Tăng/Giảm của Chi phí, Đơn hàng, CPA và CTR.
-   - Đánh dấu ngày hiệu quả nhất (`★`) và cảnh báo ngày vượt trần CPA.
-   - Đưa ra **03 Khuyến nghị hành động** cụ thể theo 3 trụ cột: *Tối ưu Creative*, *Phân bổ Ngân sách*, và *Tối ưu Chốt đơn / Landing Page*.
-5. **Xuất báo cáo tóm tắt dạng Text (1-Click Copy gửi Sếp / Khách hàng):**
-   - Hỗ trợ 3 phong cách giọng văn: **Gửi Sếp Tổng (Ngắn gọn)**, **Gửi Khách Hàng (Agency)**, **Gửi Team Marketing (Chi tiết)**.
-   - Cho phép chỉnh sửa trực tiếp và sao chép vào Clipboard chỉ với 1 chạm để dán ngay vào Zalo, Slack, Telegram hoặc Email.
-6. **Hệ sinh thái 4 Màn hình UI/UX (Precision Metric Design System):**
-   - **Tab 1:** Tổng quan hiệu suất (Dashboard KPI Chiến dịch).
-   - **Tab 2:** Kênh Facebook & Google Ads (So sánh đa kênh & điều phối ngân sách).
-   - **Tab 3:** Cấu hình Ngân sách & KPI (Thiết lập ngưỡng CPA trần, CTR sàn & quy tắc cảnh báo).
-   - **Tab 4:** Nhật ký tối ưu (Lịch sử tác động & đối soát trước/sau tối ưu).
+> **Bối cảnh:** Marketer cần theo dõi hiệu quả quảng cáo mỗi ngày nhưng không phải ai cũng rành Excel.  
+> **Sản phẩm:** Dashboard nhập liệu trực quan, tự động tính toán chỉ số KPI, vẽ biểu đồ đường/cột, AI nhận xét xu hướng và xuất báo cáo 1-click copy gửi Sếp/Khách hàng.
 
 ---
 
-## 📁 Cấu trúc thư mục
+## 🎯 5 Yêu Cầu Chức Năng Đã Hoàn Thành Trọn Vẹn
 
-```text
-├── index.html                  # Ứng dụng Web hoàn chỉnh (tích hợp cả 4 màn hình & bộ máy tính toán)
-├── app.js                      # Logic tính KPI, vẽ biểu đồ động SVG, AI chẩn đoán & localStorage
-├── stitch_design/              # Bộ thiết kế UI/UX gốc từ Google Stitch (4 màn hình HTML + PNG + DESIGN.md)
-├── B2_Ke_Hoach_Chien_Luoc.md   # Tài liệu Bước 2: Kế hoạch chiến lược & Sơ đồ luồng
-└── B3_Spec_Va_Prompt_Stitch.md # Tài liệu Bước 3: Đặc tả kỹ thuật & Prompt thiết kế
+| # | Yêu Cầu | Hiện Thực & Điểm Nổi Bật |
+|---|---|---|
+| **1** | **Form nhập số liệu theo ngày** | • Nhập Reach, Click, Chi phí (VNĐ), Số đơn hàng.<br>• Hỗ trợ nhập trực tiếp từng dòng hoặc mở **Modal nhập nhiều dòng (Batch entry)**.<br>• **Đặc biệt: Hỗ trợ Dán trực tiếp từ bảng tính Excel / Google Sheets** (tự động nhận diện tab-separated values).<br>• Lưu trữ bền vững vào `localStorage`, có sẵn dữ liệu mẫu 10 ngày chuẩn Digital Marketing. |
+| **2** | **Vẽ biểu đồ đường/cột** | • Tích hợp Chart.js với khả năng hiển thị mượt mà.<br>• Đa chế độ: **Đơn hàng & Chi phí** (Dual-axis), **Reach & Clicks**, **Chỉ số chất lượng (CTR & CPA)**.<br>• Hỗ trợ chuyển đổi nhanh: **Biểu đồ Cột (Bar)**, **Biểu đồ Đường (Line)**, và **Hỗn hợp (Combo)**. |
+| **3** | **Tự động tính các chỉ số KPI** | • **CTR** = (Click / Reach) × 100%<br>• **CPC** = Chi phí / Click (VNĐ)<br>• **CPA** = Chi phí / Đơn hàng (VNĐ)<br>• **CVR** = (Đơn hàng / Click) × 100%<br>• Hệ thống thẻ thống kê tổng quan với so sánh tỷ lệ % tăng/giảm so với chu kỳ trước. |
+| **4** | **AI nhận xét xu hướng & 03 gợi ý** | • Mô hình phân tích heuristic nhận diện các trạng thái: *Tăng trưởng tích cực (Scale Up)*, *Bão hòa quảng cáo (Ad Fatigue)*, *Cảnh báo đốt ngân sách*, hoặc *Vận hành ổn định*.<br>• Đánh giá chất lượng 3 chỉ số: CTR (Hook nội dung), CPC (Đấu thầu), CPA (Lợi nhuận đơn).<br>• **Chính xác 03 gợi ý hành động chiến thuật cụ thể**: Creative Hook Refresh, Audience & Cost Cap, CRO & Funnel Boost. |
+| **5** | **Nút xuất báo cáo tóm tắt dạng text** | • 4 Template chuyên nghiệp: **Bản gửi Sếp (Executive)**, **Bản gửi Khách hàng (Agency)**, **Bản Kỹ thuật (Media Buyer)**, **Gửi nhanh Zalo/Slack**.<br>• Chỉnh sửa trực tiếp trước khi copy.<br>• **1-Click Copy vào Clipboard** kèm pháo hoa Confetti và Toast thông báo.<br>• Hỗ trợ tải file `.txt` và in / lưu PDF. |
+
+---
+
+## 🛠️ Công Nghệ Sử Dụng (Tech Stack)
+
+- **Framework:** React 18, TypeScript, Vite
+- **Styling:** Tailwind CSS, Lucide Icons, Glassmorphism UI
+- **Data Visualization:** Chart.js, React-ChartJS-2
+- **Data Persistence:** LocalStorage với Auto-seed & Schema Migration
+- **Delight Effects:** Canvas-Confetti
+
+---
+
+## 🚀 Hướng Dẫn Cài Đặt & Chạy Ứng Dụng
+
+### 1. Khởi chạy môi trường phát triển (Development)
+```bash
+npm install
+npm run dev
 ```
+Mở trình duyệt tại: `http://localhost:3000`
+
+### 2. Build bản sản xuất (Production Build)
+```bash
+npm run build
+npm run preview
+```
+Bản build tĩnh tối ưu hóa nằm gọn trong thư mục `dist/`.
+
+---
+
+## 💡 Hướng Dẫn Sử Dụng Nhanh Cho Marketer
+1. **Trải nghiệm ngay trong 1 giây:** Bấm nút **"Nạp Data Mẫu"** trên thanh Navbar để nạp 10 ngày dữ liệu chiến dịch e-Commerce thực tế.
+2. **Nhập thêm dữ liệu:**
+   - Dùng thanh nhập nhanh ở đầu bảng dữ liệu để thêm từng ngày.
+   - Hoặc bấm **"Nhập Nhiều Dòng / Excel"** để dán toàn bộ bảng từ Excel vào.
+3. **Xem biểu đồ:** Chuyển đổi giữa các tab xem Đơn & Chi phí, Reach & Click hoặc CTR & CPA.
+4. **Đọc nhận xét AI:** Xem ngay thẻ **AI Growth Copilot** để biết chiến dịch đang tăng hay giảm và 3 việc cần làm hôm nay.
+5. **Gửi báo cáo:** Bấm nút màu gradient **"Xuất Báo Cáo"** -> Chọn mẫu "Bản Gửi Sếp" -> Bấm **"Copy Báo Cáo Gửi Ngay"** và dán vào Zalo/Email.
