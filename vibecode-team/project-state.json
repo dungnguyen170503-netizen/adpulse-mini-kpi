@@ -2,7 +2,7 @@
   "skill_name": "vibecode-team",
   "display_name": "Vibecode-Team",
   "skill_version": "0.1.0",
-  "context_revision": "2026-11-05.24",
+  "context_revision": "2026-11-05.25",
   "timezone": "Asia/Saigon",
   "project": "Dashboard KPI chiến dịch mini — đề 7, bảng B",
   "members": ["Lộc", "Thanh Dũng", "Trịnh Khoa"],
@@ -31,8 +31,8 @@
     "url": "https://github.com/dungnguyen170503-netizen/adpulse-mini-kpi",
     "default_branch": "main",
     "baseline_commit": "f1774a105f416fd4c16b9438f70e415085d5399c",
-    "canonical_context_path": "vibecode-team/project-state.json (committed on local branch codex/plan-handoff; remote publication pending)",
-    "access_status": "Public repository cloned locally on codex/plan-handoff. Push to origin failed HTTP 403: permission denied to tailocngo1512-cpu; remote branch and PR do not exist.",
+    "canonical_context_path": "vibecode-team/project-state.json on origin/codex/plan-handoff (pending PR review/merge into main)",
+    "access_status": "Remote branch codex/plan-handoff pushed successfully using a one-time PAT prompt without storing it in the remote URL. GitHub connector account tailocngo1512-cpu remains read-only; no PR yet.",
     "alternative_repo_not_selected": "https://github.com/dungnguyen170503-netizen/APP-ADS",
     "legacy_branch_reference_only": "feature/ban-c-ai-report contains older app/spec inconsistent with approved strategy; do not merge as current baseline without review"
   },
@@ -83,7 +83,7 @@
     "Người dùng xác nhận 4 giờ/người/ngày 06–09/11 cho tối đa 48 giờ công gộp; phạm vi có rủi ro thời gian đỏ",
     "Plan thực thi mới là bản phân gói; chưa có spec/thiết kế/repo baseline để giao build",
     "Người dùng chưa phản biện hoặc duyệt nội dung Plan kế hoạch và Plan thực thi",
-    "Cần chủ repo cấp quyền ghi cho tailocngo1512-cpu hoặc cơ chế đưa nhánh tài liệu vào adpulse-mini-kpi; push hiện bị HTTP 403",
+    "Cần mở và review PR từ codex/plan-handoff vào main; tài liệu chưa được merge",
     "Nhánh feature/ban-c-ai-report có code/spec cũ mâu thuẫn chiến lược đã duyệt; không tự merge vào main"
   ],
   "team_assignment": {
@@ -110,6 +110,6 @@
     "packaged_for_build_revision": null,
     "shared_by_user": false
   },
-  "next_session": "Repo nguồn chuẩn là adpulse-mini-kpi main tại baseline f1774a1; bộ tài liệu đã commit ở local branch codex/plan-handoff. Chủ repo cần cấp quyền ghi cho tailocngo1512-cpu hoặc tự đưa nhánh/tài liệu lên; sau đó push và mở PR. Nhánh feature/ban-c-ai-report chỉ là tham khảo cũ. Chưa code app trong phiên này.",
-  "last_session_result": "Người dùng cung cấp adpulse-mini-kpi hoặc APP-ADS. Đã kiểm tra cả hai: main đều chỉ có README sau commit clean 04/11; chọn adpulse-mini-kpi main làm nguồn chuẩn. Đã clone repo, tạo và commit bộ tài liệu Vibecode-Team vào local branch codex/plan-handoff. Push tới origin bị HTTP 403 vì tailocngo1512-cpu không có quyền ghi; chưa có remote branch/PR, chưa merge nhánh cũ."
+  "next_session": "Repo nguồn chuẩn là adpulse-mini-kpi main tại baseline f1774a1; bộ tài liệu đã push lên origin/codex/plan-handoff. Mở và review PR trước khi merge vào main. Nhánh feature/ban-c-ai-report chỉ là tham khảo cũ. Chưa code app trong phiên này.",
+  "last_session_result": "Người dùng cung cấp adpulse-mini-kpi hoặc APP-ADS. Đã kiểm tra cả hai: main đều chỉ có README sau commit clean 04/11; chọn adpulse-mini-kpi main làm nguồn chuẩn. Đã clone repo, commit và push bộ tài liệu Vibecode-Team lên origin/codex/plan-handoff bằng PAT nhập một lần, không lưu trong remote URL. Chưa mở PR hoặc merge nhánh cũ."
 }
