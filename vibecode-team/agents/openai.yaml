@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vibecode-Team"
+  short_description: "Phối hợp nhóm từ chiến lược đến build từng module"
+  default_prompt: "Dùng $vibecode-team để đọc bối cảnh mới nhất và tiếp tục đúng giai đoạn của nhóm."
