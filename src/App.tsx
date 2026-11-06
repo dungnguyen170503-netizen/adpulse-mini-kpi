@@ -23,6 +23,10 @@ import { ImageImportModal } from './components/ImageImportModal';
 import { PdfExportModal } from './components/PdfExportModal';
 import { DuplicateResolutionModal } from './components/DuplicateResolutionModal';
 import { Toast } from './components/Toast';
+import { PeriodFilterBar } from './components/PeriodFilterBar';
+import { AnalysisView } from './components/AnalysisView';
+import { ReportView } from './components/ReportView';
+import { PeriodFilter, filterRecords, resolvePeriod, periodLabel, buildDailySeries } from './report/reportModel';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -89,13 +93,23 @@ export const App: React.FC = () => {
   }, [summarySnapshot]);
 
   // 3. Tính toán toàn bộ chỉ số qua Lõi KPI Chung (Single Source of Truth)
+  // Tab + bộ lọc kỳ (Khoa · U1/C2): một bộ lọc dùng chung cho cả 3 góc nhìn
+  type Tab = 'overview' | 'analysis' | 'report';
+  const [tab, setTab] = useState<Tab>('overview');
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>({ preset: 'all' });
+  const [pdfSnapshot, setPdfSnapshot] = useState<CampaignReportSnapshot | null>(null);
+
   const snapshot: CampaignReportSnapshot = useMemo(() => {
-    const snap = calculatePeriodAggregates(records);
+    // Lọc kỳ rồi đưa vào lõi KPI của Dũng; không tính KPI ở nơi khác.
+    const snap = calculatePeriodAggregates(filterRecords(records, periodFilter));
     if (summarySnapshot) {
       snap.summaryRecord = summarySnapshot;
     }
     return snap;
-  }, [records, summarySnapshot]);
+  }, [records, summarySnapshot, periodFilter]);
+
+  const requestedPeriod = useMemo(() => resolvePeriod(records, periodFilter), [records, periodFilter]);
+  const daysInRange = useMemo(() => buildDailySeries(snapshot).points.length, [snapshot]);
 
   const showToast = (message: string, type: 'success' | 'warning' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
@@ -215,7 +229,36 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 md:py-8 space-y-6">
+      {/* Tabs desktop/tablet (Khoa · U1) */}
+      <nav aria-label="Góc nhìn" className="hidden md:block border-b border-slate-800 bg-slate-950">
+        <div className="max-w-7xl mx-auto px-6 flex gap-1" role="tablist">
+          {([['overview', 'Tổng quan'], ['analysis', 'Phân tích'], ['report', 'Báo cáo']] as const).map(([id, label]) => (
+            <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
+              className={`px-4 py-3 text-sm font-semibold border-b-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${tab === id ? 'border-indigo-500 text-white' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 md:py-8 space-y-6 pb-24 md:pb-8">
+        <PeriodFilterBar
+          filter={periodFilter}
+          onChange={setPeriodFilter}
+          rangeLabel={periodLabel(snapshot, requestedPeriod)}
+          daysWithData={snapshot.meta.totalDays}
+          daysInRange={daysInRange}
+        />
+
+        {tab === 'analysis' && <AnalysisView snapshot={snapshot} />}
+        {tab === 'report' && (
+          <ReportView
+            current={snapshot}
+            onOpenPdf={(snap) => { setPdfSnapshot(snap); setIsPdfModalOpen(true); }}
+            onToast={showToast}
+          />
+        )}
+        {tab === 'overview' && (<>
         {/* Banner Tổng Quan Nhiệm Vụ Hoàn Thành */}
         <section className="p-4 md:p-5 rounded-3xl bg-gradient-to-r from-indigo-950/70 via-slate-900 to-rose-950/60 border border-indigo-500/30 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -300,7 +343,18 @@ export const App: React.FC = () => {
             onOpenMultiModal={() => setIsMultiModalOpen(true)}
           />
         </section>
+        </>)}
       </main>
+
+      {/* Tab dưới cho mobile (Khoa · U1) */}
+      <nav aria-label="Góc nhìn" className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950 border-t border-slate-800 grid grid-cols-3" role="tablist">
+        {([['overview', 'Tổng quan'], ['analysis', 'Phân tích'], ['report', 'Báo cáo']] as const).map(([id, label]) => (
+          <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
+            className={`py-3 text-xs font-semibold ${tab === id ? 'text-indigo-400' : 'text-slate-400'}`}>
+            {label}
+          </button>
+        ))}
+      </nav>
 
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">
@@ -339,8 +393,8 @@ export const App: React.FC = () => {
       {/* Modal 4: Xuất Báo Cáo PDF Trực Tiếp (BƯỚC 4) */}
       <PdfExportModal
         isOpen={isPdfModalOpen}
-        onClose={() => setIsPdfModalOpen(false)}
-        snapshot={snapshot}
+        onClose={() => { setIsPdfModalOpen(false); setPdfSnapshot(null); }}
+        snapshot={pdfSnapshot ?? snapshot}
       />
 
       {/* Modal Xử Lý Trùng Lặp Ngày */}

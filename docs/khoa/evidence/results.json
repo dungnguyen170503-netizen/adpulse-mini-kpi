@@ -1,0 +1,102 @@
+[
+  {
+    "name": "Phân tích: báo ngày thiếu 03/11 và để trống biểu đồ",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Phân tích: có 3 biểu đồ",
+    "ok": true,
+    "detail": "canvas=3"
+  },
+  {
+    "name": "Text: kỳ 01/11/2026 – 05/11/2026",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Text: chi phí 2.370.000",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Text: reach 39.500",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Text: CTR 2.89%",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Text: CPC 2.079",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Text: chi phí/đơn 49.375",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Text: ghi ngày thiếu 03/11",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Copy: clipboard khớp nội dung xem trước",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "PPTX: file adpulse-bao-cao-2026-11-01-2026-11-05.pptx mở được, 4 slide",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "PPTX: kỳ 01/11/2026 – 05/11/2026",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "PPTX: chi phí/reach/CTR/CPC/CPA khớp",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "PPTX: ghi \"Không có dữ liệu\" cho 03/11",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "PPTX: chữ Việt giữ dấu",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Dữ liệu/kỳ đổi: hiện banner \"Cập nhật báo cáo\"",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Mobile: không tràn ngang",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Mobile: nút Sao chép cố định hiển thị",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Mobile: copy hoạt động",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Không có lỗi console/page",
+    "ok": true,
+    "detail": ""
+  }
+]
