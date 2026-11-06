@@ -1,0 +1,108 @@
+/**
+ * DATA CONTRACT DEFINITION - MODULE C1 & D1
+ * Single Source of Truth for AdPulse KPI Dashboard
+ */
+
+export type SourceType = 'manual' | 'excel_csv' | 'text_copy' | 'image_ocr';
+export type RecordStatus = 'valid' | 'warning' | 'draft' | 'invalid';
+
+/**
+ * Bản ghi dữ liệu theo ngày chuẩn Contract C1
+ */
+export interface DailyAdRecord {
+  id: string;
+  date: string;               // YYYY-MM-DD
+  campaign_name?: string;     // Tên chiến dịch
+  spend: number;              // Chi phí (VNĐ)
+  reach: number;              // Lượt tiếp cận (Người)
+  clicks: number;             // Lượt click
+  orders: number;             // Số đơn hàng thành công
+  source_type: SourceType;    // Nguồn dữ liệu
+  status: RecordStatus;       // Trạng thái kiểm tra
+  notes?: string;             // Ghi chú
+}
+
+/**
+ * Trạng thái giá trị tính toán KPI
+ */
+export type MetricStatus = 'valid' | 'zero_division' | 'missing_data' | 'out_of_bounds';
+
+export interface MetricValue<T> {
+  value: T | null;
+  formatted: string;
+  status: MetricStatus;
+  warningMessage?: string;
+}
+
+/**
+ * Bộ chỉ số KPI đã được tính toán bởi Core Engine
+ */
+export interface CalculatedKPIs {
+  ctr: MetricValue<number>;   // Tỷ lệ nhấp (%)
+  cpc: MetricValue<number>;   // Chi phí mỗi nhấp (VNĐ)
+  cpa: MetricValue<number>;   // Chi phí mỗi đơn (VNĐ)
+  cvr: MetricValue<number>;   // Tỷ lệ chuyển đổi (%)
+}
+
+/**
+ * Bản ghi theo ngày kèm theo các chỉ số KPI đã tính
+ */
+export interface CalculatedDailyRecord extends DailyAdRecord {
+  kpis: CalculatedKPIs;
+}
+
+/**
+ * Bản ghi tổng hợp kỳ (dành cho OCR ảnh chỉ có tổng kỳ)
+ */
+export interface PeriodSummaryRecord {
+  id: string;
+  period_start: string;
+  period_end: string;
+  total_spend: number;
+  total_reach: number;
+  total_clicks: number;
+  total_orders: number;
+  is_aggregate_only: true;
+  notes?: string;
+}
+
+/**
+ * Snapshot Báo Cáo Hợp Nhất dùng chung (SSOT Contract C1 <-> C2)
+ */
+export interface CampaignReportSnapshot {
+  meta: {
+    snapshotId: string;
+    generatedAt: string;         // ISO 8601 timestamp
+    periodStart: string;         // YYYY-MM-DD
+    periodEnd: string;           // YYYY-MM-DD
+    totalDays: number;
+    currency: 'VND';
+    campaignName: string;
+    hasDailyBreakdown: boolean;
+  };
+  totals: {
+    spend: number;
+    reachSum: number;            // Tổng lượt tiếp cận từng ngày cộng dồn
+    clicks: number;
+    orders: number;
+  };
+  kpis: CalculatedKPIs;          // KPI toàn kỳ (Weighted Aggregates)
+  dailyRecords: CalculatedDailyRecord[];
+  dataIntegrity: {
+    isClean: boolean;
+    missingFieldsCount: number;
+    zeroDivisionCount: number;
+    duplicateDatesResolved: number;
+    warnings: string[];
+  };
+}
+
+/**
+ * Kết quả kiểm tra tính hợp lệ của dòng nhập
+ */
+export interface RowValidationResult {
+  isValid: boolean;
+  hasWarnings: boolean;
+  errors: Record<string, string>;
+  warnings: Record<string, string>;
+}
