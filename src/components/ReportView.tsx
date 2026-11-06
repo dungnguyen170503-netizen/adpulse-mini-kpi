@@ -8,6 +8,9 @@ import { Copy, Download, FileText, FileDown, Mail, Presentation, RefreshCw, Aler
 interface Props {
   /** Snapshot hiện tại theo dữ liệu/bộ lọc đang xem */
   current: CampaignReportSnapshot;
+  /** Snapshot báo cáo đã đóng băng (giữ nguyên kể cả khi chuyển sang tab khác rồi quay lại) */
+  frozen: CampaignReportSnapshot;
+  onRefreshFrozen: () => void;
   /** Mở màn PDF với đúng snapshot đã đóng băng để PDF/text/PPTX cùng số */
   onOpenPdf: (snapshot: CampaignReportSnapshot) => void;
   onToast: (message: string, type?: 'success' | 'warning' | 'error' | 'info') => void;
@@ -15,9 +18,7 @@ interface Props {
 
 type Format = 'text' | 'pdf' | 'email' | 'pptx';
 
-export const ReportView: React.FC<Props> = ({ current, onOpenPdf, onToast }) => {
-  // Snapshot báo cáo bất biến: chỉ đổi khi người dùng bấm "Cập nhật báo cáo".
-  const [frozen, setFrozen] = useState<CampaignReportSnapshot>(current);
+export const ReportView: React.FC<Props> = ({ current, frozen, onRefreshFrozen, onOpenPdf, onToast }) => {
   const [format, setFormat] = useState<Format>('text');
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -62,7 +63,7 @@ export const ReportView: React.FC<Props> = ({ current, onOpenPdf, onToast }) => 
         <div role="alert" className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs">
           <span className="flex items-start gap-2"><AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" aria-hidden />
             Dữ liệu đã thay đổi sau khi tạo báo cáo (dựa trên dữ liệu lúc {snapshotTimeLabel(frozen.meta.generatedAt)}).</span>
-          <button type="button" onClick={() => setFrozen(current)} className="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-900 font-bold flex items-center gap-1.5 self-start">
+          <button type="button" onClick={onRefreshFrozen} className="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-900 font-bold flex items-center gap-1.5 self-start">
             <RefreshCw className="w-3.5 h-3.5" aria-hidden /> Cập nhật báo cáo
           </button>
         </div>

@@ -1,5 +1,5 @@
 BÁO CÁO CHIẾN DỊCH FACEBOOK ADS
-Kỳ: 01/11/2026 – 05/11/2026 (4 ngày có dữ liệu)
+Kỳ: 01/11/2026 – 05/11/2026 (4/5 ngày có dữ liệu)
 
 1. SỐ LIỆU CHÍNH
 - Chi phí: 2.370.000 đ
@@ -13,9 +13,9 @@ Kỳ: 01/11/2026 – 05/11/2026 (4 ngày có dữ liệu)
 - Chi phí mỗi đơn: 49.375 đ
 
 3. LƯU Ý DỮ LIỆU
-- Không có dòng dữ liệu các ngày: 03/11/2026
+- Không có dòng dữ liệu các ngày: 03/11/2026 (biểu đồ để trống các ngày này, không tính là 0)
 
 4. GỢI Ý AI
 - Chưa có gợi ý AI trong bản này (phần AI do Lộc tích hợp).
 
-Snapshot snap_1793974404432 · dữ liệu vc468d8da · tạo lúc 21:13 06/11/2026
+Snapshot snap_1793976480873 · dữ liệu vc468d8da · tạo lúc 21:48 06/11/2026

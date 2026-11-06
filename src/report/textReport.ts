@@ -4,19 +4,20 @@
  */
 import { CampaignReportSnapshot } from '../types/campaign';
 import { formatVND } from '../utils/kpiEngine';
-import { buildDailySeries, formatDateVN, snapshotTimeLabel } from './reportModel';
+import { buildDailySeries, collectDataNotes, formatDateVN, snapshotTimeLabel } from './reportModel';
 
 export function buildTextReport(snapshot: CampaignReportSnapshot, dataVersion: string): string {
-  const { meta, totals, kpis, dataIntegrity } = snapshot;
-  const { missingDates } = buildDailySeries(snapshot);
+  const { meta, totals, kpis } = snapshot;
+  const { daysWithData, daysInRange } = buildDailySeries(snapshot);
   const L: string[] = [];
 
   if (snapshot.dailyRecords.length === 0) {
     return 'BÁO CÁO CHIẾN DỊCH FACEBOOK ADS\nChưa có dữ liệu để báo cáo.';
   }
 
+  const rowNote = snapshot.dailyRecords.length !== daysWithData ? `, ${snapshot.dailyRecords.length} dòng bản ghi` : '';
   L.push('BÁO CÁO CHIẾN DỊCH FACEBOOK ADS');
-  L.push(`Kỳ: ${formatDateVN(meta.periodStart)} – ${formatDateVN(meta.periodEnd)} (${meta.totalDays} ngày có dữ liệu)`);
+  L.push(`Kỳ: ${formatDateVN(meta.periodStart)} – ${formatDateVN(meta.periodEnd)} (${daysWithData}/${daysInRange} ngày có dữ liệu${rowNote})`);
   L.push('');
   L.push('1. SỐ LIỆU CHÍNH');
   L.push(`- Chi phí: ${formatVND(totals.spend)}`);
@@ -31,13 +32,7 @@ export function buildTextReport(snapshot: CampaignReportSnapshot, dataVersion: s
 
   L.push('');
   L.push('3. LƯU Ý DỮ LIỆU');
-  const notes: string[] = [];
-  if (missingDates.length) notes.push(`Không có dòng dữ liệu các ngày: ${missingDates.map(formatDateVN).join(', ')}`);
-  for (const [k, v] of [['CTR', kpis.ctr], ['CPC', kpis.cpc], ['Chi phí mỗi đơn', kpis.cpa]] as const) {
-    if (v.warningMessage) notes.push(`${k}: ${v.warningMessage}`);
-  }
-  notes.push(...dataIntegrity.warnings);
-  if (snapshot.summaryRecord) notes.push('Có số tổng kỳ lấy từ ảnh chụp, chỉ dùng ở mức tổng kỳ, không phải số theo ngày');
+  const notes = collectDataNotes(snapshot);
   if (notes.length === 0) notes.push('Không có cảnh báo.');
   notes.forEach(n => L.push(`- ${n}`));
 

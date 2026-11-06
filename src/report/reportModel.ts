@@ -27,7 +27,6 @@ export function resolvePeriod(records: DailyAdRecord[], filter: PeriodFilter): {
   const max = dates[dates.length - 1];
   if (filter.preset === 'last7') return { from: addDays(max, -6) < min ? min : addDays(max, -6), to: max };
   if (filter.preset === 'custom') {
-    // Chỉ chọn một đầu thì đầu còn lại lấy theo dữ liệu (không bỏ qua bộ lọc âm thầm)
     const from = filter.from || min;
     const to = filter.to || max;
     return from <= to ? { from, to } : { from: to, to: from };
@@ -68,9 +67,14 @@ export interface DayPoint {
  * Ngày có dòng nhập tường minh (kể cả toàn 0) → vẽ đúng giá trị 0.
  * Nhiều dòng cùng ngày (chưa gộp) được cộng lại chỉ để vẽ điểm; KPI vẫn do kpiEngine tính.
  */
-export function buildDailySeries(snapshot: CampaignReportSnapshot): { points: DayPoint[]; missingDates: string[] } {
+export function buildDailySeries(snapshot: CampaignReportSnapshot): {
+  points: DayPoint[];
+  missingDates: string[];
+  daysWithData: number;
+  daysInRange: number;
+} {
   const recs = snapshot.dailyRecords;
-  if (recs.length === 0) return { points: [], missingDates: [] };
+  if (recs.length === 0) return { points: [], missingDates: [], daysWithData: 0, daysInRange: 0 };
   const from = snapshot.meta.periodStart;
   const to = snapshot.meta.periodEnd;
   const byDate = new Map<string, { reach: number; spend: number; orders: number }>();
@@ -92,7 +96,50 @@ export function buildDailySeries(snapshot: CampaignReportSnapshot): { points: Da
       missingDates.push(d);
     }
   }
-  return { points, missingDates };
+  return {
+    points,
+    missingDates,
+    daysWithData: points.length - missingDates.length,
+    daysInRange: points.length
+  };
+}
+
+/**
+ * Tổng hợp ghi chú dữ liệu từ snapshot (không tính lại KPI):
+ * gồm ngày thiếu trong kỳ, cảnh báo toàn kỳ, cảnh báo trùng ngày và cảnh báo từng dòng từ kpiEngine.
+ */
+export function collectDataNotes(snapshot: CampaignReportSnapshot): string[] {
+  const { kpis, dataIntegrity, dailyRecords } = snapshot;
+  const { missingDates } = buildDailySeries(snapshot);
+  const notes: string[] = [];
+
+  if (missingDates.length > 0) {
+    notes.push(`Không có dòng dữ liệu các ngày: ${missingDates.map(formatDateVN).join(', ')} (biểu đồ để trống các ngày này, không tính là 0)`);
+  }
+  for (const [k, v] of [['CTR kỳ', kpis.ctr], ['CPC kỳ', kpis.cpc], ['Chi phí mỗi đơn kỳ', kpis.cpa]] as const) {
+    if (v.warningMessage) notes.push(`${k}: ${v.warningMessage}`);
+  }
+  for (const w of dataIntegrity.warnings) {
+    notes.push(w);
+  }
+  for (const r of dailyRecords) {
+    const dLabel = formatDateVN(r.date);
+    if (r.spend === 0 && r.reach === 0 && r.clicks === 0 && r.orders === 0) {
+      notes.push(`Ngày ${dLabel}: toàn bộ số liệu = 0 (tạm dừng chiến dịch)`);
+      continue;
+    }
+    const rowWarnings: string[] = [];
+    if (r.kpis.ctr.warningMessage) rowWarnings.push(`CTR (${r.kpis.ctr.warningMessage})`);
+    if (r.kpis.cpc.warningMessage) rowWarnings.push(`CPC (${r.kpis.cpc.warningMessage})`);
+    if (r.kpis.cpa.warningMessage) rowWarnings.push(`Chi phí/đơn (${r.kpis.cpa.warningMessage})`);
+    if (rowWarnings.length > 0) {
+      notes.push(`Ngày ${dLabel}: ${rowWarnings.join('; ')}`);
+    }
+  }
+  if (snapshot.summaryRecord) {
+    notes.push('Có số tổng kỳ lấy từ ảnh chụp, chỉ dùng ở mức tổng kỳ, không phải số theo ngày');
+  }
+  return notes;
 }
 
 /** Dấu vết nội dung dữ liệu: đổi dữ liệu hoặc kỳ → khác nhau. Dùng để phát hiện báo cáo cũ. */

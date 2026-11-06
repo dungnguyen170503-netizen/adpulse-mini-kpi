@@ -5,7 +5,7 @@
 import PptxGenJS from 'pptxgenjs';
 import { CampaignReportSnapshot } from '../types/campaign';
 import { formatVND } from '../utils/kpiEngine';
-import { buildDailySeries, formatDateVN, snapshotTimeLabel } from './reportModel';
+import { buildDailySeries, collectDataNotes, formatDateVN, snapshotTimeLabel } from './reportModel';
 
 const BLUE = '0B5FFF';
 const GRAY = '5B6472';
@@ -16,8 +16,8 @@ export function pptxFileName(snapshot: CampaignReportSnapshot): string {
 }
 
 export async function downloadPptx(snapshot: CampaignReportSnapshot, dataVersion: string): Promise<string> {
-  const { meta, totals, kpis, dataIntegrity } = snapshot;
-  const { points, missingDates } = buildDailySeries(snapshot);
+  const { meta, totals, kpis } = snapshot;
+  const { points, missingDates, daysWithData, daysInRange } = buildDailySeries(snapshot);
   const period = `${formatDateVN(meta.periodStart)} – ${formatDateVN(meta.periodEnd)}`;
   const footer = `Snapshot ${meta.snapshotId} · dữ liệu v${dataVersion} · ${snapshotTimeLabel(meta.generatedAt)}`;
 
@@ -32,7 +32,8 @@ export async function downloadPptx(snapshot: CampaignReportSnapshot, dataVersion
   let s = pptx.addSlide();
   s.addText('Báo cáo chiến dịch Facebook Ads', { x: 0.5, y: 1.6, w: 9, h: 0.9, fontSize: 32, bold: true, color: DARK, fontFace: 'Arial' });
   s.addText(`Kỳ báo cáo: ${period}`, { x: 0.5, y: 2.6, w: 9, h: 0.5, fontSize: 20, color: BLUE, fontFace: 'Arial' });
-  s.addText(`${meta.totalDays} ngày có dữ liệu${missingDates.length ? ` · thiếu ${missingDates.length} ngày` : ''}`, {
+  const rowNote = snapshot.dailyRecords.length !== daysWithData ? ` · ${snapshot.dailyRecords.length} dòng bản ghi` : '';
+  s.addText(`${daysWithData}/${daysInRange} ngày có dữ liệu${missingDates.length ? ` · thiếu ${missingDates.length} ngày` : ''}${rowNote}`, {
     x: 0.5, y: 3.2, w: 9, h: 0.4, fontSize: 14, color: GRAY, fontFace: 'Arial'
   });
   addFooter(s);
@@ -76,16 +77,11 @@ export async function downloadPptx(snapshot: CampaignReportSnapshot, dataVersion
   // Slide 4: Ghi chú dữ liệu + AI
   s = pptx.addSlide();
   s.addText('Lưu ý dữ liệu & gợi ý', { x: 0.5, y: 0.3, w: 9, h: 0.5, fontSize: 22, bold: true, color: DARK, fontFace: 'Arial' });
-  const notes: string[] = [];
-  if (missingDates.length) notes.push(`Không có dòng dữ liệu các ngày: ${missingDates.map(formatDateVN).join(', ')}`);
-  for (const [k, v] of [['CTR', kpis.ctr], ['CPC', kpis.cpc], ['Chi phí mỗi đơn', kpis.cpa]] as const) {
-    if (v.warningMessage) notes.push(`${k}: ${v.warningMessage}`);
-  }
-  notes.push(...dataIntegrity.warnings);
+  const notes = collectDataNotes(snapshot);
   if (notes.length === 0) notes.push('Không có cảnh báo dữ liệu.');
   notes.push('Gợi ý AI: chưa có trong bản này (do Lộc tích hợp).');
   s.addText(notes.map(t => ({ text: t, options: { bullet: true, breakLine: true } })), {
-    x: 0.6, y: 1.1, w: 8.8, h: 3.7, fontSize: 14, color: DARK, fontFace: 'Arial', valign: 'top'
+    x: 0.6, y: 1.1, w: 8.8, h: 3.7, fontSize: 13, color: DARK, fontFace: 'Arial', valign: 'top'
   });
   addFooter(s);
 

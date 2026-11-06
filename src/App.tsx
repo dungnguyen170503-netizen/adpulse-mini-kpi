@@ -109,7 +109,8 @@ export const App: React.FC = () => {
   }, [records, summarySnapshot, periodFilter]);
 
   const requestedPeriod = useMemo(() => resolvePeriod(records, periodFilter), [records, periodFilter]);
-  const daysInRange = useMemo(() => buildDailySeries(snapshot).points.length, [snapshot]);
+  const seriesInfo = useMemo(() => buildDailySeries(snapshot), [snapshot]);
+  const [frozenSnapshot, setFrozenSnapshot] = useState<CampaignReportSnapshot>(() => snapshot);
 
   const showToast = (message: string, type: 'success' | 'warning' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
@@ -246,14 +247,16 @@ export const App: React.FC = () => {
           filter={periodFilter}
           onChange={setPeriodFilter}
           rangeLabel={periodLabel(snapshot, requestedPeriod)}
-          daysWithData={snapshot.meta.totalDays}
-          daysInRange={daysInRange}
+          daysWithData={seriesInfo.daysWithData}
+          daysInRange={seriesInfo.daysInRange}
         />
 
         {tab === 'analysis' && <AnalysisView snapshot={snapshot} />}
         {tab === 'report' && (
           <ReportView
             current={snapshot}
+            frozen={frozenSnapshot}
+            onRefreshFrozen={() => setFrozenSnapshot(snapshot)}
             onOpenPdf={(snap) => { setPdfSnapshot(snap); setIsPdfModalOpen(true); }}
             onToast={showToast}
           />

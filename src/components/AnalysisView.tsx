@@ -4,7 +4,7 @@ import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Tooltip, Legend, Filler
 } from 'chart.js';
 import { CampaignReportSnapshot } from '../types/campaign';
-import { buildDailySeries, formatDateVN } from '../report/reportModel';
+import { buildDailySeries, collectDataNotes, formatDateVN } from '../report/reportModel';
 import { AlertTriangle } from 'lucide-react';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Tooltip, Legend, Filler);
@@ -15,25 +15,39 @@ const axisColor = '#94a3b8';
 const baseOptions = (unit: string) => ({
   responsive: true,
   maintainAspectRatio: false,
-  plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c: any) => c.raw === null ? 'Không có dữ liệu' : `${Number(c.raw).toLocaleString('vi-VN')} ${unit}` } } },
+  animation: false as const,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: (c: any) => c.raw === null ? 'Không có dữ liệu' : `${Number(c.raw).toLocaleString('vi-VN')} ${unit}`
+      }
+    }
+  },
   scales: {
     x: { ticks: { color: axisColor }, grid: { display: false } },
-    y: { beginAtZero: true, ticks: { color: axisColor, callback: (v: any) => Number(v).toLocaleString('vi-VN') }, grid: { color: 'rgba(148,163,184,0.15)' }, title: { display: true, text: unit, color: axisColor } }
+    y: {
+      beginAtZero: true,
+      ticks: { color: axisColor, callback: (v: any) => Number(v).toLocaleString('vi-VN') },
+      grid: { color: 'rgba(148,163,184,0.15)' },
+      title: { display: true, text: unit, color: axisColor }
+    }
   }
 });
 
 const ChartCard: React.FC<{ title: string; question: string; children: React.ReactNode }> = ({ title, question, children }) => (
-  <figure className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+  <figure className="min-w-0 p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
     <figcaption className="mb-3">
       <div className="text-sm font-bold text-white">{title}</div>
       <div className="text-xs text-slate-400">{question}</div>
     </figcaption>
-    <div className="h-56 sm:h-64">{children}</div>
+    <div className="relative w-full h-56 sm:h-64">{children}</div>
   </figure>
 );
 
 export const AnalysisView: React.FC<Props> = ({ snapshot }) => {
   const { points, missingDates } = buildDailySeries(snapshot);
+  const dataNotes = collectDataNotes(snapshot);
   if (points.length === 0) {
     return <div className="p-8 text-center text-slate-400 rounded-2xl bg-slate-900/60 border border-slate-800">Chưa có số liệu để vẽ biểu đồ. Hãy nhập hoặc nạp dữ liệu mẫu.</div>;
   }
@@ -45,10 +59,15 @@ export const AnalysisView: React.FC<Props> = ({ snapshot }) => {
 
   return (
     <div className="space-y-4">
-      {missingDates.length > 0 && (
-        <div role="status" className="flex items-start gap-2 p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs">
-          <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" aria-hidden />
-          <span>Không có dòng dữ liệu ngày: {missingDates.map(formatDateVN).join(', ')}. Biểu đồ để trống các ngày này, không tính là 0.</span>
+      {dataNotes.length > 0 && (
+        <div role="region" aria-label="Lưu ý dữ liệu" className="p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 text-xs text-slate-200 space-y-1">
+          <div className="font-semibold text-amber-300 flex items-center gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5" aria-hidden />
+            <span>Lưu ý dữ liệu trong kỳ ({dataNotes.length})</span>
+          </div>
+          <ul className="list-disc list-inside text-slate-300 space-y-0.5">
+            {dataNotes.map((n, idx) => <li key={idx}>{n}</li>)}
+          </ul>
         </div>
       )}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

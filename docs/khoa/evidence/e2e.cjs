@@ -1,4 +1,4 @@
-﻿const { chromium } = require('playwright-core');
+const { chromium } = require('playwright-core');
 const PizZip = require('pizzip');
 const fs = require('fs');
 const path = require('path');
@@ -21,43 +21,35 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   await page.addInitScript(d => { if (!localStorage.getItem('__seeded')) { localStorage.setItem('adpulse_campaign_records_v1', JSON.stringify(d)); localStorage.setItem('__seeded', '1'); } }, GAP);
   await page.goto('http://localhost:5173/');
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(1000);
 
   const shot = async (n) => page.screenshot({ path: path.join(OUT, n), fullPage: true });
   await shot('desktop-overview.png');
 
-  // Tab Phân tích
+  // Tab Phân tích (ca thiếu ngày 03/11)
   await page.getByRole('tab', { name: 'Phân tích' }).click();
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(800);
   await shot('desktop-analysis.png');
-  const gapNote = await page.getByText('Không có dòng dữ liệu ngày: 03/11/2026').count();
-  check('Phân tích: báo ngày thiếu 03/11 và để trống biểu đồ', gapNote > 0);
+  const gapNote = await page.getByText('Không có dòng dữ liệu các ngày: 03/11/2026').count();
+  check('Phân tích (ca thiếu 03/11): báo ngày thiếu 03/11 và để trống biểu đồ', gapNote > 0);
   const canvases = await page.locator('canvas').count();
   check('Phân tích: có 3 biểu đồ', canvases === 3, `canvas=${canvases}`);
-  // Giá trị thực sự đưa vào chart: lấy từ Chart.js instance qua canvas
-  const chartData = await page.evaluate(() => Array.from(document.querySelectorAll('canvas')).map(c => {
-    const inst = window.Chart ? window.Chart.getChart(c) : null; return inst ? inst.data.datasets[0].data : null; }));
-  console.log('chartData(window.Chart)=', JSON.stringify(chartData));
 
-  // Tab Báo cáo
+  // Tab Báo cáo (ca thiếu ngày 03/11)
   await page.getByRole('tab', { name: 'Báo cáo' }).click();
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(600);
   await shot('desktop-report.png');
   const text = await page.getByTestId('report-text').innerText();
   fs.writeFileSync(path.join(OUT, 'report-text.txt'), text, 'utf8');
-  check('Text: kỳ 01/11/2026 – 05/11/2026', text.includes('01/11/2026 – 05/11/2026'));
-  check('Text: chi phí 2.370.000', /2\.370\.000/.test(text));
-  check('Text: reach 39.500', text.includes('39.500'));
-  check('Text: CTR 2.89%', text.includes('2.89%'));
-  check('Text: CPC 2.079', text.includes('2.079'));
-  check('Text: chi phí/đơn 49.375', text.includes('49.375'));
-  check('Text: ghi ngày thiếu 03/11', text.includes('03/11/2026'));
+  check('Text (ca thiếu 03/11): kỳ 01/11/2026 – 05/11/2026 (4/5 ngày có dữ liệu)', text.includes('01/11/2026 – 05/11/2026 (4/5 ngày có dữ liệu)'));
+  check('Text (ca thiếu 03/11): chi phí 2.370.000, reach 39.500, CTR 2.89%, CPC 2.079, CPA 49.375', ['2.370.000', '39.500', '2.89%', '2.079', '49.375'].every(v => text.includes(v)));
+  check('Text (ca thiếu 03/11): ghi ngày thiếu 03/11', text.includes('03/11/2026'));
 
   await page.getByRole('button', { name: /Sao chép/ }).first().click();
   const clip = await page.evaluate(() => navigator.clipboard.readText());
-  check('Copy: clipboard khớp nội dung xem trước', clip.replace(/\r\n/g,'\n') === text.replace(/\r\n/g,'\n'));
+  check('Copy: clipboard khớp nội dung xem trước', clip.replace(/\r\n/g, '\n') === text.replace(/\r\n/g, '\n'));
 
-  // PPTX
+  // PPTX (ca thiếu 03/11)
   await page.getByRole('radio', { name: /PPTX/ }).click();
   const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: /Tải PPTX/ }).click()]);
   const pptxPath = path.join(OUT, dl.suggestedFilename());
@@ -68,39 +60,98 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   fs.writeFileSync(path.join(OUT, 'pptx-text.txt'), slideText.map((t, i) => `--- slide ${i + 1} ---\n${t}`).join('\n'), 'utf8');
   const all = slideText.join('\n');
   check('PPTX: file ' + dl.suggestedFilename() + ' mở được, ' + slides.length + ' slide', slides.length === 4);
-  check('PPTX: kỳ 01/11/2026 – 05/11/2026', all.includes('01/11/2026 – 05/11/2026'));
+  check('PPTX: kỳ 01/11/2026 – 05/11/2026 & 4/5 ngày có dữ liệu', all.includes('01/11/2026 – 05/11/2026') && all.includes('4/5 ngày có dữ liệu'));
   check('PPTX: chi phí/reach/CTR/CPC/CPA khớp', ['2.370.000', '39.500', '2.89%', '2.079', '49.375'].every(v => all.includes(v)));
   check('PPTX: ghi "Không có dữ liệu" cho 03/11', all.includes('Không có dữ liệu'));
   check('PPTX: chữ Việt giữ dấu', all.includes('Báo cáo chiến dịch Facebook Ads') && all.includes('Số liệu chính'));
 
-  // Ngày đổi dữ liệu / lọc kỳ -> banner cũ
-  await page.getByRole('button', { name: 'Tùy chọn' }).click(); await page.locator('input[type=date]').first().fill('2026-11-02');
-  await page.waitForTimeout(500);
+  // Đổi kỳ -> banner báo cáo cũ
+  await page.getByRole('button', { name: 'Tùy chọn' }).click();
+  await page.locator('input[type=date]').first().fill('2026-11-02');
+  await page.waitForTimeout(400);
   check('Dữ liệu/kỳ đổi: hiện banner "Cập nhật báo cáo"', await page.getByText('Dữ liệu đã thay đổi sau khi tạo báo cáo').count() > 0);
   await shot('desktop-report-stale.png');
 
-  // Mobile
+  // Kiểm tra Bộ 1 (đối chiếu PDF mẫu của Dũng), Bộ 2 (dữ liệu lỗi/thiếu), Bộ 3 (biên/số 0/trùng ngày)
+  await page.getByRole('button', { name: 'Toàn bộ dữ liệu', exact: true }).click();
+
+  // Bộ 1 chuẩn (5 ngày) — đối chiếu sample-report-thanh-dung.pdf
+  await page.getByRole('button', { name: 'Bộ 1', exact: false }).first().click();
+  await page.waitForTimeout(500);
+  await page.getByRole('button', { name: /Cập nhật báo cáo/ }).click();
+  await page.getByRole('radio', { name: /Text/ }).click();
+  await page.waitForTimeout(300);
+  const textBo1 = await page.getByTestId('report-text').innerText();
+  fs.writeFileSync(path.join(OUT, 'bo1-report-text.txt'), textBo1, 'utf8');
+  check('Bộ 1 (khớp PDF mẫu của Dũng): 2.970.000 đ, reach 49.500, click 1.460, đơn 60, CTR 2.95%, CPC 2.034 đ, CPA 49.500 đ',
+    ['01/11/2026 – 05/11/2026 (5/5 ngày có dữ liệu)', '2.970.000 đ', '49.500', '1.460', '60', '2.95%', '2.034 đ', '49.500 đ'].every(v => textBo1.includes(v)));
+
+  // Bộ 2 (dữ liệu lỗi/thiếu)
+  await page.getByRole('button', { name: 'Bộ 2', exact: false }).first().click();
+  await page.waitForTimeout(500);
+  await page.getByRole('button', { name: /Cập nhật báo cáo/ }).click();
+  await page.waitForTimeout(300);
+  const textBo2 = await page.getByTestId('report-text').innerText();
+  fs.writeFileSync(path.join(OUT, 'bo2-report-text.txt'), textBo2, 'utf8');
+  check('Bộ 2 (dữ liệu lỗi/thiếu): báo cảnh báo Reach = 0 (01/11) và Clicks > Reach (04/11)',
+    textBo2.includes('01/11/2026') && textBo2.includes('Reach = 0') && textBo2.includes('04/11/2026') && textBo2.includes('Clicks lớn hơn Reach'));
+  await page.getByRole('tab', { name: 'Phân tích' }).click();
+  await page.waitForTimeout(500);
+  await shot('desktop-bo2-analysis.png');
+
+  // Bộ 3 (biên, mẫu số 0, tạm dừng, trùng ngày)
+  await page.getByRole('button', { name: 'Bộ 3', exact: false }).first().click();
+  await page.waitForTimeout(500);
+  await shot('desktop-bo3-analysis.png');
+  const filterTextBo3 = await page.getByRole('group', { name: 'Bộ lọc kỳ' }).innerText();
+  check('Bộ 3 (trùng ngày 03/11): bộ lọc hiện 3/3 ngày có dữ liệu (không hiện 4/3)', filterTextBo3.includes('3/3 ngày có dữ liệu'));
+  await page.getByRole('tab', { name: 'Báo cáo' }).click();
+  await page.waitForTimeout(400);
+  await page.getByRole('button', { name: /Cập nhật báo cáo/ }).click();
+  await page.waitForTimeout(300);
+  const textBo3 = await page.getByTestId('report-text').innerText();
+  fs.writeFileSync(path.join(OUT, 'bo3-report-text.txt'), textBo3, 'utf8');
+  check('Bộ 3 (biên/số 0/trùng ngày): ghi rõ 3/3 ngày (4 dòng), 0 click, chưa phát sinh đơn, tạm dừng và trùng ngày 03/11',
+    ['3/3 ngày có dữ liệu, 4 dòng bản ghi', '0 lượt click', 'chưa phát sinh đơn', 'tạm dừng chiến dịch', '2026-11-03 (2 dòng)'].every(v => textBo3.includes(v)));
+
+  // Tablet 834x1112
+  const t = await browser.newContext({ viewport: { width: 834, height: 1112 } });
+  const tp = await t.newPage();
+  await tp.addInitScript(d => { if (!localStorage.getItem('__seeded')) { localStorage.setItem('adpulse_campaign_records_v1', JSON.stringify(d)); localStorage.setItem('__seeded', '1'); } }, GAP);
+  await tp.goto('http://localhost:5173/');
+  await tp.waitForTimeout(800);
+  await tp.screenshot({ path: path.join(OUT, 'tablet-overview.png'), fullPage: true });
+  await tp.getByRole('tab', { name: 'Phân tích' }).first().click();
+  await tp.waitForTimeout(600);
+  await tp.screenshot({ path: path.join(OUT, 'tablet-analysis.png'), fullPage: true });
+  await tp.getByRole('tab', { name: 'Báo cáo' }).first().click();
+  await tp.waitForTimeout(600);
+  await tp.screenshot({ path: path.join(OUT, 'tablet-report.png'), fullPage: true });
+  const tOverflow = await tp.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  check('Tablet 834px: 3 tab hiển thị và không tràn ngang', !tOverflow);
+
+  // Mobile 390x844
   const m = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, permissions: ['clipboard-read', 'clipboard-write'] });
   const mp = await m.newPage();
   await mp.addInitScript(d => { if (!localStorage.getItem('__seeded')) { localStorage.setItem('adpulse_campaign_records_v1', JSON.stringify(d)); localStorage.setItem('__seeded', '1'); } }, GAP);
   await mp.goto('http://localhost:5173/');
-  await mp.waitForTimeout(1500);
+  await mp.waitForTimeout(800);
   await mp.screenshot({ path: path.join(OUT, 'mobile-overview.png'), fullPage: false });
-  await mp.getByRole('tab', { name: 'Phân tích' }).last().click(); await mp.waitForTimeout(3000);
-  await mp.screenshot({ path: path.join(OUT, 'mobile-analysis.png'), fullPage: true });
-  await mp.getByRole('tab', { name: 'Báo cáo' }).last().click(); await mp.waitForTimeout(800);
+  await mp.getByRole('tab', { name: 'Phân tích' }).last().click();
+  await mp.waitForTimeout(600);
+  await mp.screenshot({ path: path.join(OUT, 'mobile-analysis.png'), fullPage: false });
+  await mp.getByRole('tab', { name: 'Báo cáo' }).last().click();
+  await mp.waitForTimeout(600);
   await mp.screenshot({ path: path.join(OUT, 'mobile-report.png'), fullPage: false });
   const overflow = await mp.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
-  check('Mobile: không tràn ngang', !overflow);
+  check('Mobile 390px: không tràn ngang', !overflow);
   const copyVisible = await mp.getByRole('button', { name: /Sao chép/ }).last().isVisible();
-  check('Mobile: nút Sao chép cố định hiển thị', copyVisible);
+  check('Mobile 390px: nút Sao chép cố định hiển thị', copyVisible);
   await mp.getByRole('button', { name: /Sao chép/ }).last().click();
   const clip2 = await mp.evaluate(() => navigator.clipboard.readText());
-  check('Mobile: copy hoạt động', clip2.includes('01/11/2026 – 05/11/2026'));
+  check('Mobile 390px: copy hoạt động', clip2.includes('01/11/2026 – 05/11/2026'));
 
   check('Không có lỗi console/page', errors.length === 0, errors.slice(0, 3).join(' || '));
   fs.writeFileSync(path.join(OUT, 'results.json'), JSON.stringify(results, null, 2));
   await browser.close();
 })().catch(e => { console.error('E2E ERROR', e); process.exit(1); });
-
-
