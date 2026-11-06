@@ -1,0 +1,8 @@
+--- slide 1 ---
+Báo cáo chiến dịch Facebook Ads | Kỳ báo cáo: 01/11/2026 – 05/11/2026 | 4/5 ngày có dữ liệu · thiếu 1 ngày | Snapshot snap_1793976480873 · dữ liệu vc468d8da · 21:48 06/11/2026
+--- slide 2 ---
+Số liệu chính · 01/11/2026 – 05/11/2026 | Chi phí | 2.370.000 đ | Reach (tổng các ngày) | 39.500 | Click | 1.140 | Số đơn | 48 | CTR (click/reach) | 2.89% | CPC | 2.079 đ | Chi phí mỗi đơn | 49.375 đ | Reach là tổng các ngày, không phải số người duy nhất cả kỳ. | Snapshot snap_1793976480873 · dữ liệu vc468d8da · 21:48 06/11/2026
+--- slide 3 ---
+Theo ngày | Ngày | Reach | Chi phí (VND) | Số đơn | 01/11 | 5.000 | 300.000 | 6 | 02/11 | 7.500 | 450.000 | 9 | 03/11 | Không có dữ liệu | — | — | 04/11 | 12.000 | 720.000 | 15 | 05/11 | 15.000 | 900.000 | 18 | Snapshot snap_1793976480873 · dữ liệu vc468d8da · 21:48 06/11/2026
+--- slide 4 ---
+Lưu ý dữ liệu &amp; gợi ý | Không có dòng dữ liệu các ngày: 03/11/2026 (biểu đồ để trống các ngày này, không tính là 0) | Gợi ý AI: chưa có trong bản này (do Lộc tích hợp). | Snapshot snap_1793976480873 · dữ liệu vc468d8da · 21:48 06/11/2026

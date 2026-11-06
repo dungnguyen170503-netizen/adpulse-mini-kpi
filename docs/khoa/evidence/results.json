@@ -1,0 +1,107 @@
+[
+  {
+    "name": "Phân tích (ca thiếu 03/11): báo ngày thiếu 03/11 và để trống biểu đồ",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Phân tích: có 3 biểu đồ",
+    "ok": true,
+    "detail": "canvas=3"
+  },
+  {
+    "name": "Text (ca thiếu 03/11): kỳ 01/11/2026 – 05/11/2026 (4/5 ngày có dữ liệu)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Text (ca thiếu 03/11): chi phí 2.370.000, reach 39.500, CTR 2.89%, CPC 2.079, CPA 49.375",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Text (ca thiếu 03/11): ghi ngày thiếu 03/11",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Copy: clipboard khớp nội dung xem trước",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "PPTX: file adpulse-bao-cao-2026-11-01-2026-11-05.pptx mở được, 4 slide",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "PPTX: kỳ 01/11/2026 – 05/11/2026 & 4/5 ngày có dữ liệu",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "PPTX: chi phí/reach/CTR/CPC/CPA khớp",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "PPTX: ghi \"Không có dữ liệu\" cho 03/11",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "PPTX: chữ Việt giữ dấu",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Dữ liệu/kỳ đổi: hiện banner \"Cập nhật báo cáo\"",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Bộ 1 (khớp PDF mẫu của Dũng): 2.970.000 đ, reach 49.500, click 1.460, đơn 60, CTR 2.95%, CPC 2.034 đ, CPA 49.500 đ",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Bộ 2 (dữ liệu lỗi/thiếu): báo cảnh báo Reach = 0 (01/11) và Clicks > Reach (04/11)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Bộ 3 (trùng ngày 03/11): bộ lọc hiện 3/3 ngày có dữ liệu (không hiện 4/3)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Bộ 3 (biên/số 0/trùng ngày): ghi rõ 3/3 ngày (4 dòng), 0 click, chưa phát sinh đơn, tạm dừng và trùng ngày 03/11",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Tablet 834px: 3 tab hiển thị và không tràn ngang",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Mobile 390px: không tràn ngang",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Mobile 390px: nút Sao chép cố định hiển thị",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Mobile 390px: copy hoạt động",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Không có lỗi console/page",
+    "ok": true,
+    "detail": ""
+  }
+]
