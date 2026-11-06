@@ -20,6 +20,7 @@ import { DataTable } from './components/DataTable';
 import { MultiRowEntryModal } from './components/MultiRowEntryModal';
 import { FileImportModal } from './components/FileImportModal';
 import { ImageImportModal } from './components/ImageImportModal';
+import { PdfExportModal } from './components/PdfExportModal';
 import { DuplicateResolutionModal } from './components/DuplicateResolutionModal';
 import { Toast } from './components/Toast';
 import {
@@ -32,6 +33,7 @@ import {
   Layers,
   FileSpreadsheet,
   Image as ImageIcon,
+  FileDown,
   ArrowRight,
   Database
 } from 'lucide-react';
@@ -60,6 +62,7 @@ export const App: React.FC = () => {
   const [isMultiModalOpen, setIsMultiModalOpen] = useState(false);
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(() => getLastSavedTimestamp());
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'warning' | 'error' | 'info' } | null>(null);
@@ -208,43 +211,36 @@ export const App: React.FC = () => {
         onOpenMultiModal={() => setIsMultiModalOpen(true)}
         onOpenFileImport={() => setIsFileModalOpen(true)}
         onOpenImageImport={() => setIsImageModalOpen(true)}
+        onOpenPdfExport={() => setIsPdfModalOpen(true)}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 md:py-8 space-y-6">
-        {/* Banner Trạng Thái BƯỚC 3: ĐA NGUỒN NHẬP LIỆU */}
-        <section className="p-4 md:p-5 rounded-3xl bg-gradient-to-r from-indigo-950/70 via-slate-900 to-purple-950/60 border border-indigo-500/30 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Banner Tổng Quan Nhiệm Vụ Hoàn Thành */}
+        <section className="p-4 md:p-5 rounded-3xl bg-gradient-to-r from-indigo-950/70 via-slate-900 to-rose-950/60 border border-indigo-500/30 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>BƯỚC 3: EXCEL / CSV • TEXT COPY • ẢNH CHỤP (OCR)</span>
+                <span>BƯỚC 4: XUẤT BÁO CÁO PDF TRỰC TIẾP (SSOT K1/R2)</span>
               </span>
               <span className="text-xs text-slate-400">
-                4 nguồn nạp: Tay • File • Clipboard • Ảnh
+                Kỳ: {snapshot.meta.periodStart || '—'} đến {snapshot.meta.periodEnd || '—'}
               </span>
             </div>
             <p className="text-xs md:text-sm text-slate-300">
-              Quy tắc C1: <i>"Nguồn nào đọc không rõ thì cho sửa trước khi lưu; không tự tạo dữ liệu từng ngày từ ảnh chỉ có tổng kỳ"</i>.
+              Xuất trực tiếp file PDF chuyên nghiệp từ Snapshot dữ liệu chung. Số liệu, kỳ báo cáo và chỉ số KPI khớp 100% với Dashboard!
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
             <button
               type="button"
-              onClick={() => setIsFileModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition-all"
+              onClick={() => setIsPdfModalOpen(true)}
+              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white text-xs font-bold shadow-lg shadow-rose-500/30 flex items-center gap-2 transition-all"
             >
-              <FileSpreadsheet className="w-4 h-4" />
-              <span>Nạp Excel/CSV/Text</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsImageImportModalOpen ? setIsImageImportModalOpen(true) : setIsImageModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-md shadow-purple-500/20 flex items-center gap-1.5 transition-all"
-            >
-              <ImageIcon className="w-4 h-4" />
-              <span>Đọc Ảnh Ads (OCR)</span>
+              <FileDown className="w-4 h-4" />
+              <span>Mở Báo Cáo & Tải PDF</span>
             </button>
           </div>
         </section>
@@ -309,10 +305,10 @@ export const App: React.FC = () => {
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">
         <p>
-          AdPulse Mini KPI Dashboard • Đề 7, Bảng B • Phụ trách bởi Thanh Dũng (Data, KpiEngine, LocalStorage, Import Engine)
+          AdPulse Mini KPI Dashboard • Đề 7, Bảng B • Phụ trách bởi Thanh Dũng (Data, KpiEngine, LocalStorage, Import & PDF Export)
         </p>
         <p className="text-[11px] text-slate-600 mt-1">
-          Hỗ trợ: Nhập tay • File Excel/CSV • Dán Clipboard Google Sheets • Ảnh chụp Ads Manager OCR
+          Xuất PDF trực tiếp từ Snapshot chung • Đối chiếu khớp 100% với Dashboard • Chữ Việt sắc nét không lỗi font
         </p>
       </footer>
 
@@ -338,6 +334,13 @@ export const App: React.FC = () => {
         onClose={() => setIsImageModalOpen(false)}
         onConfirmDailyImport={(rows) => handleBatchSave(rows, 'từ ảnh OCR')}
         onConfirmSummaryImport={handleSaveSummarySnapshot}
+      />
+
+      {/* Modal 4: Xuất Báo Cáo PDF Trực Tiếp (BƯỚC 4) */}
+      <PdfExportModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        snapshot={snapshot}
       />
 
       {/* Modal Xử Lý Trùng Lặp Ngày */}
