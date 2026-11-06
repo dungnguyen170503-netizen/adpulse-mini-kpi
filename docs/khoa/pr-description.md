@@ -6,10 +6,13 @@
 - `docs/khoa/user-flow.md`: luồng, bộ lọc kỳ, trạng thái, responsive
 - `docs/khoa/report-snapshot-contract.md`: snapshot chung cho text/PDF/HTML/PPTX/AI (contractVersion 0.1-draft)
 - `docs/khoa/screen-spec.md`: 9 màn hình, prompt Stitch
+- `docs/khoa/design/`: 13 ảnh mockup Stitch + `DESIGN.md`; `docs/khoa/design-review.md`: ghi chú, phần chưa đạt, phần Stitch tự thêm sẽ không làm
 
 ### Chưa làm / chưa đạt
 - Chưa đối chiếu C1 của Dũng (chưa có trên repo)
-- Thiết kế Stitch chưa xong, chưa được duyệt
+- Thiết kế Stitch chưa đủ: thiếu tablet (trừ Tổng quan) và mobile của S4, S6–S9; chưa được duyệt
+- Số trong mockup là số minh họa, chưa đồng nhất giữa các màn (ví dụ 342 vs 302 đơn); khi code mọi màn đọc cùng một snapshot
+- Mockup có phần Stitch tự thêm (ROAS, Meta API, XLSX...) sẽ không làm, xem `design-review.md`
 - Chưa chạy thật vì chưa có code
 
 ### Hai quyết định chính
