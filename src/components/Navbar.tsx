@@ -6,30 +6,36 @@ import {
   Sparkles,
   Trash2,
   CheckCircle2,
-  HelpCircle,
-  FileText
+  FileSpreadsheet,
+  Image as ImageIcon
 } from 'lucide-react';
 
 interface NavbarProps {
   recordCount: number;
   lastSavedAt: string | null;
+  hasSummarySnapshot?: boolean;
   onLoadDataset1: () => void;
   onLoadDataset2: () => void;
   onLoadDataset3: () => void;
   onReloadPage: () => void;
   onClearAll: () => void;
   onOpenMultiModal: () => void;
+  onOpenFileImport: () => void;
+  onOpenImageImport: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   recordCount,
   lastSavedAt,
+  hasSummarySnapshot,
   onLoadDataset1,
   onLoadDataset2,
   onLoadDataset3,
   onReloadPage,
   onClearAll,
-  onOpenMultiModal
+  onOpenMultiModal,
+  onOpenFileImport,
+  onOpenImageImport
 }) => {
   const formattedTime = lastSavedAt
     ? new Date(lastSavedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
@@ -40,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
         {/* Brand & State */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white flex items-center justify-center shadow-lg shadow-indigo-500/25">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/25">
             <span className="font-extrabold text-base tracking-wider">AP</span>
           </div>
           <div>
@@ -52,7 +58,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Đề 7 • Bảng B
               </span>
               <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold border border-emerald-500/20">
-                Thanh Dũng (D1/K1)
+                Thanh Dũng (D1–D3, K1)
               </span>
             </div>
             <div className="flex items-center gap-2 text-[11px] text-slate-400">
@@ -60,64 +66,92 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Database className="w-3 h-3" />
                 <span>LocalStorage: {recordCount} ngày</span>
               </span>
+              {hasSummarySnapshot && (
+                <span className="px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-mono text-[10px]">
+                  + Snapshot Tổng Kỳ
+                </span>
+              )}
               <span>•</span>
               <span>Lưu lúc: {formattedTime}</span>
             </div>
           </div>
         </div>
 
-        {/* Action Controls & Test Buttons */}
+        {/* Action Controls & Input Source Buttons */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Nạp 3 Bộ Dữ Liệu Kiểm Thử của C1 */}
-          <div className="flex items-center gap-1 bg-slate-950/70 p-1 rounded-xl border border-slate-800">
+          {/* 4 Nguồn Nhập Số Liệu: Tay, Excel/CSV, Text, Ảnh */}
+          <div className="flex items-center gap-1.5 bg-slate-950/80 p-1 rounded-2xl border border-slate-800">
+            {/* 1. Nhập tay */}
+            <button
+              type="button"
+              onClick={onOpenMultiModal}
+              className="px-3 py-1.5 rounded-xl bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+              title="Nhập tay nhiều dòng cùng lúc"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Nhập Tay</span>
+            </button>
+
+            {/* 2. Excel / CSV / Text */}
+            <button
+              type="button"
+              onClick={onOpenFileImport}
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-emerald-600/80 hover:text-white text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-700/60"
+              title="Nhập file Excel (.xlsx), CSV hoặc dán văn bản từ Google Sheets"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Excel/CSV/Text</span>
+            </button>
+
+            {/* 3. Ảnh chụp OCR */}
+            <button
+              type="button"
+              onClick={onOpenImageImport}
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-purple-600/80 hover:text-white text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-700/60"
+              title="Đọc ảnh chụp màn hình Meta Ads Manager"
+            >
+              <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
+              <span>Ảnh Chụp (OCR)</span>
+            </button>
+          </div>
+
+          {/* Nạp 3 Bộ Dữ Liệu Kiểm Thử */}
+          <div className="hidden lg:flex items-center gap-1 bg-slate-950/60 p-1 rounded-xl border border-slate-800/80">
             <button
               type="button"
               onClick={onLoadDataset1}
-              className="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 text-[11px] font-medium transition-colors"
-              title="Nạp Bộ 1: 5 ngày E-Commerce chuẩn mực"
+              className="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-[11px] font-medium transition-colors"
             >
-              Bộ 1 (Chuẩn)
+              Bộ 1
             </button>
             <button
               type="button"
               onClick={onLoadDataset2}
-              className="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 text-[11px] font-medium transition-colors"
-              title="Nạp Bộ 2: Dữ liệu bẩn/thiếu/bất thường"
+              className="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-[11px] font-medium transition-colors"
             >
-              Bộ 2 (Lỗi/Thiếu)
+              Bộ 2
             </button>
             <button
               type="button"
               onClick={onLoadDataset3}
-              className="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 text-[11px] font-medium transition-colors"
-              title="Nạp Bộ 3: Mẫu số 0, 0 click/đơn, ngày trùng"
+              className="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-[11px] font-medium transition-colors"
             >
-              Bộ 3 (Biên/Số 0)
+              Bộ 3
             </button>
           </div>
 
-          {/* Nút Thử Tải Lại Trang (F5 Reload Test) */}
+          {/* F5 Reload Test */}
           <button
             type="button"
             onClick={onReloadPage}
-            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-700"
-            title="Thử tải lại trang để chứng minh dữ liệu lưu trong LocalStorage vẫn còn nguyên"
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-700"
+            title="Thử F5 tải lại trang để chứng minh LocalStorage hoạt động bền vững"
           >
             <RotateCcw className="w-3.5 h-3.5 text-blue-400" />
-            <span className="hidden sm:inline">Thử F5 Tải Lại</span>
+            <span className="hidden sm:inline">F5 Test</span>
           </button>
 
-          {/* Nút Nhập Nhiều Dòng */}
-          <button
-            type="button"
-            onClick={onOpenMultiModal}
-            className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 flex items-center gap-1.5 transition-all"
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>Nhập Nhiều Dòng</span>
-          </button>
-
-          {/* Xóa sạch */}
+          {/* Clear all */}
           <button
             type="button"
             onClick={onClearAll}

@@ -1,5 +1,5 @@
 /**
- * DATA CONTRACT DEFINITION - MODULE C1 & D1
+ * DATA CONTRACT DEFINITION - MODULE C1, D1, D2, D3
  * Single Source of Truth for AdPulse KPI Dashboard
  */
 
@@ -88,6 +88,7 @@ export interface CampaignReportSnapshot {
   };
   kpis: CalculatedKPIs;          // KPI toàn kỳ (Weighted Aggregates)
   dailyRecords: CalculatedDailyRecord[];
+  summaryRecord?: PeriodSummaryRecord; // Bản ghi tổng hợp nếu nạp từ ảnh tổng kỳ
   dataIntegrity: {
     isClean: boolean;
     missingFieldsCount: number;
@@ -105,4 +106,48 @@ export interface RowValidationResult {
   hasWarnings: boolean;
   errors: Record<string, string>;
   warnings: Record<string, string>;
+}
+
+/**
+ * Ánh xạ cột từ File / Text sang các trường chuẩn của hệ thống
+ */
+export interface ColumnMapping {
+  date: string;
+  spend: string;
+  reach: string;
+  clicks: string;
+  orders: string;
+  campaign_name?: string;
+  notes?: string;
+}
+
+/**
+ * Kết quả phân tích thô của File / Clipboard Text
+ */
+export interface RawParseResult {
+  headers: string[];
+  rows: Record<string, any>[];
+  suggestedMapping: ColumnMapping;
+  fileName?: string;
+  fileType: 'excel' | 'csv' | 'text_tsv';
+}
+
+/**
+ * Dữ liệu bản nháp nhận diện từ Ảnh Chụp OCR
+ */
+export interface ImageOcrDraft {
+  mode: 'daily_rows' | 'period_summary';
+  imagePreviewUrl: string;
+  fileName: string;
+  confidenceScore: number; // 0 - 100
+  periodSummary?: {
+    period_start: string;
+    period_end: string;
+    total_spend: number;
+    total_reach: number;
+    total_clicks: number;
+    total_orders: number;
+  };
+  dailyRows?: Partial<DailyAdRecord>[];
+  ambiguities: string[]; // Các điểm mơ hồ cần người dùng chỉnh sửa trước khi lưu
 }
