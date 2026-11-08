@@ -1,3 +1,4 @@
+import { aiReportText } from './aiReport';
 /**
  * BÁO CÁO TEXT (R1) — dựng trực tiếp từ CampaignReportSnapshot.
  * Mọi số lấy từ snapshot.totals / snapshot.kpis[*].formatted do kpiEngine tạo; không tính lại.
@@ -38,7 +39,7 @@ export function buildTextReport(snapshot: CampaignReportSnapshot, dataVersion: s
 
   L.push('');
   L.push('4. GỢI Ý AI');
-  L.push('- Chưa có gợi ý AI trong bản này (phần AI do Lộc tích hợp).');
+  L.push(aiReportText(snapshot));
 
   L.push('');
   L.push(`Snapshot ${meta.snapshotId} · dữ liệu v${dataVersion} · tạo lúc ${snapshotTimeLabel(meta.generatedAt)}`);

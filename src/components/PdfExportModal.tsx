@@ -1,3 +1,4 @@
+import { aiReportText } from '../report/aiReport';
 import React, { useRef, useState } from 'react';
 import { CampaignReportSnapshot } from '../types/campaign';
 import { formatVND, formatPercent } from '../utils/kpiEngine';
@@ -313,6 +314,7 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
               </p>
             </div>
 
+            <section className="pt-4 text-xs whitespace-pre-wrap text-slate-700"><h3 className="font-bold mb-2">Nhận xét và gợi ý AI</h3>{aiReportText(snapshot)}</section>
             {/* Chữ ký xác nhận */}
             <div className="pt-8 flex items-center justify-between text-xs text-slate-700">
               <div className="text-center">

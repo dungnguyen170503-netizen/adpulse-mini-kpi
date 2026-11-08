@@ -9,8 +9,8 @@ import { ColumnMapping, DailyAdRecord, RawParseResult } from '../types/campaign'
  * Chuẩn hóa số từ chuỗi có dấu phẩy, chấm, đơn vị tiền tệ
  */
 export function normalizeNumber(val: any): number {
-  if (val === undefined || val === null || val === '') return 0;
-  if (typeof val === 'number') return isNaN(val) ? 0 : Math.round(val);
+  if (val === undefined || val === null || String(val).trim() === '') return NaN;
+  if (typeof val === 'number') return Number.isFinite(val) ? Math.round(val) : NaN;
 
   // Xóa các ký tự tiền tệ: đ, VND, ₫, khoảng trắng, v.v.
   let str = String(val).trim().replace(/[₫đVNDvnd\s]/g, '');
@@ -39,15 +39,16 @@ export function normalizeNumber(val: any): number {
     }
   }
 
-  const num = parseFloat(str);
-  return isNaN(num) ? 0 : Math.round(num);
+  if (!str) return NaN;
+  const num = Number(str);
+  return Number.isFinite(num) ? Math.round(num) : NaN;
 }
 
 /**
  * Chuẩn hóa chuỗi ngày sang định dạng chuẩn YYYY-MM-DD
  */
 export function normalizeDate(val: any): string {
-  if (!val) return new Date().toISOString().split('T')[0];
+  if (val == null || String(val).trim() === '') return '';
 
   // Nếu là số serial ngày của Excel (ví dụ 45232)
   if (typeof val === 'number') {
@@ -259,10 +260,10 @@ export function applyColumnMapping(
     const rawDate = mapping.date ? row[mapping.date] : '';
     const date = normalizeDate(rawDate);
 
-    const spend = mapping.spend ? normalizeNumber(row[mapping.spend]) : 0;
-    const reach = mapping.reach ? normalizeNumber(row[mapping.reach]) : 0;
-    const clicks = mapping.clicks ? normalizeNumber(row[mapping.clicks]) : 0;
-    const orders = mapping.orders ? normalizeNumber(row[mapping.orders]) : 0;
+    const spend = mapping.spend ? normalizeNumber(row[mapping.spend]) : NaN;
+    const reach = mapping.reach ? normalizeNumber(row[mapping.reach]) : NaN;
+    const clicks = mapping.clicks ? normalizeNumber(row[mapping.clicks]) : NaN;
+    const orders = mapping.orders ? normalizeNumber(row[mapping.orders]) : NaN;
 
     const campaign_name = mapping.campaign_name && row[mapping.campaign_name]
       ? String(row[mapping.campaign_name]).trim()

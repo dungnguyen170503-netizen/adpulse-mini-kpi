@@ -1,3 +1,6 @@
+import { AiPanel } from './AiPanel';
+import { buildHtmlReport } from '../report/htmlReport';
+import type { AiAnalysis } from '../types/campaign';
 import React, { useMemo, useState } from 'react';
 import { CampaignReportSnapshot } from '../types/campaign';
 import { buildTextReport } from '../report/textReport';
@@ -11,6 +14,7 @@ interface Props {
   /** Snapshot báo cáo đã đóng băng (giữ nguyên kể cả khi chuyển sang tab khác rồi quay lại) */
   frozen: CampaignReportSnapshot;
   onRefreshFrozen: () => void;
+  onAi: (ai: AiAnalysis) => void;
   /** Mở màn PDF với đúng snapshot đã đóng băng để PDF/text/PPTX cùng số */
   onOpenPdf: (snapshot: CampaignReportSnapshot) => void;
   onToast: (message: string, type?: 'success' | 'warning' | 'error' | 'info') => void;
@@ -18,7 +22,7 @@ interface Props {
 
 type Format = 'text' | 'pdf' | 'email' | 'pptx';
 
-export const ReportView: React.FC<Props> = ({ current, frozen, onRefreshFrozen, onOpenPdf, onToast }) => {
+export const ReportView: React.FC<Props> = ({ current, frozen, onRefreshFrozen, onOpenPdf, onToast, onAi }) => {
   const [format, setFormat] = useState<Format>('text');
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -28,6 +32,7 @@ export const ReportView: React.FC<Props> = ({ current, frozen, onRefreshFrozen, 
   const stale = frozenVersion !== currentVersion;
   const text = useMemo(() => buildTextReport(frozen, frozenVersion), [frozen, frozenVersion]);
   const empty = frozen.dailyRecords.length === 0;
+  const html = useMemo(() => buildHtmlReport(frozen, frozenVersion), [frozen, frozenVersion]);
 
   const copy = async () => {
     try {
@@ -52,9 +57,9 @@ export const ReportView: React.FC<Props> = ({ current, frozen, onRefreshFrozen, 
 
   const cards: { id: Format; title: string; desc: string; icon: React.ReactNode; note?: string }[] = [
     { id: 'text', title: 'Text', desc: 'Copy gửi Zalo/sếp', icon: <FileText className="w-5 h-5" /> },
-    { id: 'pdf', title: 'PDF', desc: 'Tài liệu A4 (phần của Dũng)', icon: <FileDown className="w-5 h-5" /> },
-    { id: 'email', title: 'HTML email', desc: 'Chưa có trong PR này (phần của Lộc)', icon: <Mail className="w-5 h-5" />, note: 'chưa làm' },
-    { id: 'pptx', title: 'PPTX', desc: '4 slide 16:9, tải trực tiếp', icon: <Presentation className="w-5 h-5" /> }
+    { id: 'pdf', title: 'PDF', desc: 'Tài liệu A4, tải trực tiếp', icon: <FileDown className="w-5 h-5" /> },
+    { id: 'email', title: 'HTML email', desc: 'Xem trước, sao chép và tải HTML', icon: <Mail className="w-5 h-5" /> },
+    { id: 'pptx', title: 'PPTX', desc: '4 slide KPI + slide AI nếu có', icon: <Presentation className="w-5 h-5" /> }
   ];
 
   return (
@@ -69,11 +74,12 @@ export const ReportView: React.FC<Props> = ({ current, frozen, onRefreshFrozen, 
         </div>
       )}
 
+      <AiPanel key={frozen.meta.snapshotId} snapshot={frozen} onReady={onAi} />
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" role="radiogroup" aria-label="Chọn định dạng báo cáo">
         {cards.map(c => (
           <button
             key={c.id} type="button" role="radio" aria-checked={format === c.id}
-            disabled={c.id === 'email'}
+
             onClick={() => setFormat(c.id)}
             className={`text-left p-3 rounded-2xl border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed ${
               format === c.id ? 'bg-indigo-950/60 border-indigo-500' : 'bg-slate-900/80 border-slate-800 hover:border-slate-600'
@@ -97,9 +103,16 @@ export const ReportView: React.FC<Props> = ({ current, frozen, onRefreshFrozen, 
             </div>
           </>
         )}
+        {format === 'email' && <div className="space-y-3">
+          <iframe title="Xem trước HTML email" sandbox="" srcDoc={html} className="w-full h-96 rounded-xl bg-white" />
+          <div className="flex flex-wrap gap-3">
+            <button className="px-4 py-2 rounded-xl bg-indigo-600" disabled={empty} onClick={async () => { try { await navigator.clipboard.writeText(html); onToast('Đã sao chép mã HTML'); } catch { onToast('Không sao chép được. Hãy tải HTML.', 'error'); } }}>Sao chép HTML</button>
+            <button className="px-4 py-2 rounded-xl bg-indigo-600" disabled={empty} onClick={() => { const url = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' })); const a = document.createElement('a'); a.href = url; a.download = 'adpulse-' + frozen.meta.periodStart + '.html'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }}>Tải HTML</button>
+          </div>
+        </div>}
         {format === 'pdf' && (
           <div className="text-sm text-slate-300 space-y-3">
-            <p>PDF được tạo trực tiếp từ cùng snapshot ở màn xuất của Dũng.</p>
+            <p>PDF dùng cùng số liệu và nhận xét AI của báo cáo này.</p>
             <button type="button" onClick={() => onOpenPdf(frozen)} disabled={empty} className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold flex items-center gap-2 disabled:opacity-50"><FileDown className="w-4 h-4" aria-hidden />Mở xuất PDF</button>
           </div>
         )}

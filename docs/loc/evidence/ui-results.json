@@ -1,0 +1,37 @@
+{
+  "fixture": true,
+  "checks": [
+    {
+      "name": "Nhận xét + 3 gợi ý hiện trong báo cáo Text",
+      "ok": true
+    },
+    {
+      "name": "HTML tải được, có KPI và AI",
+      "ok": true
+    },
+    {
+      "name": "PPTX có 8 slide gồm nhận xét và 3 gợi ý",
+      "ok": true
+    },
+    {
+      "name": "PDF xem trước có cùng nhận xét AI",
+      "ok": true
+    },
+    {
+      "name": "Chatbot hiển thị câu trả lời từ API",
+      "ok": true
+    },
+    {
+      "name": "Lỗi AI không chặn báo cáo KPI",
+      "ok": true
+    },
+    {
+      "name": "AI/chat responsive 834",
+      "ok": true
+    },
+    {
+      "name": "AI/chat responsive 390",
+      "ok": true
+    }
+  ]
+}

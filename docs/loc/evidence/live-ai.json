@@ -1,0 +1,36 @@
+{
+  "status": 200,
+  "durationMs": 3035,
+  "response": {
+    "summary": "Trong giai đoạn từ 01/11/2026 đến 05/11/2026, chiến dịch Facebook Ads đã tiêu thụ 2.970.000 VND với 49.500 lượt tiếp cận và 1.460 lượt nhấp chuột. Chỉ số CTR trung bình đạt 2,95%, CPA đạt 49.500 VND và CVR là 4,11% với 60 đơn hàng. Số liệu cho thấy tính ổn định trong chi phí mỗi đơn hàng (CPA dao động nhẹ từ 48.000 - 50.000 VND) và tỷ lệ chuyển đổi (CVR) duy trì từ 3,75% đến 4,29%. Không ghi nhận cảnh báo bất thường trong dữ liệu hàng ngày.",
+    "suggestions": [
+      {
+        "title": "Tối ưu hóa hình ảnh/nội dung để cải thiện CTR",
+        "evidence": "CTR biến động trong khoảng từ 2,8% đến 3,2% trong 5 ngày qua.",
+        "limitation": "Dữ liệu chưa phân loại theo nhóm đối tượng hay định dạng quảng cáo cụ thể.",
+        "action": "A/B testing nội dung quảng cáo mới hoặc thay đổi thông điệp chính.",
+        "verification": "Theo dõi chỉ số CTR sau 3-5 ngày thay đổi để xem có vượt ngưỡng 3,2% hay không."
+      },
+      {
+        "title": "Kiểm tra lại hiệu quả chuyển đổi đơn hàng (CVR)",
+        "evidence": "CVR trung bình đạt 4,11%, mức thấp nhất là 3,75% vào ngày 03/11.",
+        "limitation": "Thiếu dữ liệu về trang đích (landing page) nên không rõ nguyên nhân sụt giảm do quảng cáo hay trang web.",
+        "action": "Kiểm tra tốc độ tải trang hoặc quy trình thanh toán trên trang đích.",
+        "verification": "So sánh CVR của 3 ngày tới với dữ liệu trung bình kỳ này (4,11%)."
+      },
+      {
+        "title": "Rà soát ngưỡng chi tiêu (Spend) theo CPA",
+        "evidence": "CPA ổn định ở mức 48.000 - 50.000 VND mặc dù ngân sách tăng dần từ 300.000 lên 900.000 VND/ngày.",
+        "limitation": "Chưa biết ngưỡng CPA tối đa mà doanh nghiệp có thể chấp nhận để duy trì lợi nhuận.",
+        "action": "Xác định mục tiêu CPA hòa vốn để điều chỉnh tăng ngân sách theo tỷ lệ thuận nếu CPA vẫn duy trì ổn định.",
+        "verification": "Theo dõi CPA trong ngày tiếp theo khi tiếp tục tăng ngân sách để đảm bảo không vượt quá 50.000 VND."
+      }
+    ],
+    "status": "ready",
+    "source": "Gemini",
+    "model": "gemini-3.1-flash-lite",
+    "generatedAt": "2026-11-08T05:05:10.095Z",
+    "snapshotId": "snap_1794114307070_6t6efp1z",
+    "dataVersion": "bf4ebfa"
+  }
+}

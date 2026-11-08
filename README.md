@@ -2,7 +2,18 @@
 
 Dashboard KPI Facebook Ads — VIBE-CODING 2026, đề 7, bảng B – Kinh tế.
 
-## Trạng thái
+## Bản ghép chạy trên máy (Lộc)
+
+Đã ghép phần Dũng + Khoa và bổ sung Gemini AI, chatbot, HTML email. Xem [hướng dẫn chạy, contract và minh chứng](docs/loc/README.md).
+
+```sh
+npm install
+npm run dev
+```
+
+Mở http://127.0.0.1:5173. Máy mới cần cấu hình `.env.local` theo `.env.example`. Khóa chỉ nằm phía máy chủ.
+
+## Trạng thái kế hoạch gốc
 
 Plan chiến lược đã được duyệt. Plan kế hoạch đã có bản dự thảo và phản biện lần đầu; Plan thực thi mới ở mức phân gói. Spec, thiết kế responsive và app chưa được build trên nhánh chính. [Trạng thái Vibecode-Team](vibecode-team/project-state.json) là điểm bắt đầu cho phiên làm việc tiếp theo.
 

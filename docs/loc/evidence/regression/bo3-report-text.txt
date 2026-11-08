@@ -1,0 +1,23 @@
+BÁO CÁO CHIẾN DỊCH FACEBOOK ADS
+Kỳ: 01/11/2026 – 03/11/2026 (3/3 ngày có dữ liệu, 4 dòng bản ghi)
+
+1. SỐ LIỆU CHÍNH
+- Chi phí: 650.000 đ
+- Reach (tổng các ngày, không phải người duy nhất cả kỳ): 13.000
+- Click: 100
+- Số đơn: 3
+
+2. CHỈ SỐ
+- CTR (click/reach): 0.77%
+- CPC (chi phí/click): 6.500 đ
+- Chi phí mỗi đơn: 216.667 đ
+
+3. LƯU Ý DỮ LIỆU
+- Phát hiện ngày trùng lặp: 2026-11-03 (2 dòng)
+- Ngày 01/11/2026: CPC (Đã chi tiền nhưng 0 lượt click (không thể chia cho 0)); Chi phí/đơn (Đã chi tiền nhưng chưa phát sinh đơn hàng)
+- Ngày 02/11/2026: toàn bộ số liệu = 0 (tạm dừng chiến dịch)
+
+4. GỢI Ý AI
+Chưa có nhận xét AI. Số liệu KPI vẫn được tính độc lập.
+
+Snapshot snap_1794114533518_roitpfkd · dữ liệu v7d9705aa · tạo lúc 12:08 08/11/2026

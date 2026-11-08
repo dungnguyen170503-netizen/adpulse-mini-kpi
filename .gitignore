@@ -26,3 +26,8 @@ dist-ssr
 _legacy_vibe_nov3/
 node_modules/
 
+
+.env
+.env.*
+!.env.example
+.gitignore.loc-backup

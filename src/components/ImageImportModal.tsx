@@ -114,6 +114,7 @@ export const ImageImportModal: React.FC<ImageImportModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6 bg-slate-950/80 backdrop-blur-md animate-fade-in overflow-y-auto">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+        <p role="alert" className="p-4 bg-amber-950 text-amber-200 text-sm">OCR hiện là mô phỏng: số liệu mẫu được chọn theo tên file, không trích xuất từ ảnh. Không dùng kết quả này làm số liệu thật nếu chưa nhập lại và đối chiếu từng ô.</p>
         {/* Header */}
         <div className="p-5 md:px-8 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
           <div>
@@ -122,7 +123,7 @@ export const ImageImportModal: React.FC<ImageImportModalProps> = ({
                 <ImageIcon className="w-4 h-4" />
               </div>
               <h2 className="text-xl font-bold text-white tracking-tight">
-                Nhập Dữ Liệu Từ Ảnh Chụp Báo Cáo Ads (OCR)
+                Ảnh chụp · Bản demo OCR (chưa đọc ảnh thật)
               </h2>
             </div>
             <p className="text-xs text-slate-400 mt-1">
@@ -374,7 +375,7 @@ export const ImageImportModal: React.FC<ImageImportModalProps> = ({
                 className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-500/25 flex items-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Xác Nhận Lưu Snapshot Tổng Kỳ</span>
+                <span>Lưu số liệu đã tự đối chiếu (demo OCR)</span>
               </button>
             )}
           </div>

@@ -69,7 +69,13 @@ export interface PeriodSummaryRecord {
 /**
  * Snapshot Báo Cáo Hợp Nhất dùng chung (SSOT Contract C1 <-> C2)
  */
+export interface AiAnalysis {
+  status: 'ready'; source: string; model: string; generatedAt: string;
+  snapshotId: string; dataVersion: string; summary: string;
+  suggestions: { title: string; evidence: string; limitation: string; action: string; verification: string }[];
+}
 export interface CampaignReportSnapshot {
+  ai?: AiAnalysis;
   meta: {
     snapshotId: string;
     generatedAt: string;         // ISO 8601 timestamp

@@ -108,6 +108,7 @@ export const FileImportModal: React.FC<FileImportModalProps> = ({
 
   // Xác nhận lưu vào hệ thống
   const handleFinalSave = () => {
+    if (draftRecords.some(r => !validateRow(r).isValid)) { alert('Vui lòng sửa các ô trống/sai trước khi lưu. Số 0 cần được nhập rõ.'); return; }
     onConfirmImport(draftRecords);
     handleReset();
     onClose();
@@ -453,32 +454,32 @@ export const FileImportModal: React.FC<FileImportModalProps> = ({
                           <td className="py-2 px-3 text-right">
                             <input
                               type="number"
-                              value={r.reach}
-                              onChange={(e) => handleDraftChange(idx, 'reach', Number(e.target.value))}
+                              value={Number.isFinite(r.reach) ? r.reach : ""}
+                              onChange={(e) => handleDraftChange(idx, 'reach', e.target.value === '' ? NaN : Number(e.target.value))}
                               className="w-20 bg-slate-950 border border-slate-700 px-2 py-1 rounded text-xs text-right text-white"
                             />
                           </td>
                           <td className="py-2 px-3 text-right">
                             <input
                               type="number"
-                              value={r.clicks}
-                              onChange={(e) => handleDraftChange(idx, 'clicks', Number(e.target.value))}
+                              value={Number.isFinite(r.clicks) ? r.clicks : ""}
+                              onChange={(e) => handleDraftChange(idx, 'clicks', e.target.value === '' ? NaN : Number(e.target.value))}
                               className="w-16 bg-slate-950 border border-slate-700 px-2 py-1 rounded text-xs text-right text-white"
                             />
                           </td>
                           <td className="py-2 px-3 text-right">
                             <input
                               type="number"
-                              value={r.spend}
-                              onChange={(e) => handleDraftChange(idx, 'spend', Number(e.target.value))}
+                              value={Number.isFinite(r.spend) ? r.spend : ""}
+                              onChange={(e) => handleDraftChange(idx, 'spend', e.target.value === '' ? NaN : Number(e.target.value))}
                               className="w-24 bg-slate-950 border border-slate-700 px-2 py-1 rounded text-xs text-right text-white"
                             />
                           </td>
                           <td className="py-2 px-3 text-right">
                             <input
                               type="number"
-                              value={r.orders}
-                              onChange={(e) => handleDraftChange(idx, 'orders', Number(e.target.value))}
+                              value={Number.isFinite(r.orders) ? r.orders : ""}
+                              onChange={(e) => handleDraftChange(idx, 'orders', e.target.value === '' ? NaN : Number(e.target.value))}
                               className="w-16 bg-slate-950 border border-slate-700 px-2 py-1 rounded text-xs text-right text-white"
                             />
                           </td>

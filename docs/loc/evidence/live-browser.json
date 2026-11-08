@@ -1,0 +1,44 @@
+{
+  "realProvider": true,
+  "analysisStatus": 200,
+  "ai": {
+    "summary": "Trong giai đoạn từ 01/11/2026 đến 05/11/2026, chiến dịch 'Chiến dịch Facebook Ads' ghi nhận tổng chi tiêu 2.970.000 VND với 49.500 lượt tiếp cận và 1.460 lượt nhấp chuột. Hiệu suất trung bình đạt CTR 2,95%, CPC 2.034 VND, CVR 4,11% và CPA 49.500 VND. Dữ liệu ghi nhận sự ổn định về CPA khi duy trì quanh mức 48.000 - 50.000 VND qua các ngày, dù ngân sách tăng dần từ 300.000 VND lên 900.000 VND mỗi ngày. Không phát hiện cảnh báo bất thường trong giai đoạn này.",
+    "suggestions": [
+      {
+        "title": "Tối ưu hóa nội dung quảng cáo để cải thiện CTR",
+        "evidence": "Chỉ số CTR dao động từ 2,8% đến 3,2% trong kỳ, chưa có sự bứt phá đáng kể dù ngân sách tăng.",
+        "limitation": "Dữ liệu chưa phân tách hiệu quả theo từng nhóm quảng cáo hoặc định dạng quảng cáo cụ thể.",
+        "action": "Tiến hành A/B testing với các mẫu nội dung hoặc hình ảnh mới có thông điệp thu hút hơn.",
+        "verification": "Theo dõi chỉ số CTR trong 3-5 ngày tiếp theo xem có duy trì mức trên 3,2% hay không."
+      },
+      {
+        "title": "Điều chỉnh ngân sách dựa trên tỷ lệ chuyển đổi (CVR)",
+        "evidence": "CVR ghi nhận cao nhất đạt 4,29% vào ngày 02/11 và 05/11, trong khi ngày 03/11 giảm xuống 3,75%.",
+        "limitation": "Dữ liệu hiện tại chỉ cung cấp theo ngày, chưa có thông tin về khung giờ chạy quảng cáo hiệu quả.",
+        "action": "Phân tích khung giờ khách hàng chuyển đổi cao để phân bổ ngân sách tập trung hơn vào các thời điểm đó.",
+        "verification": "Kiểm tra lại báo cáo CVR theo khung giờ trong trình quản lý quảng cáo để so sánh với kết quả hiện tại."
+      },
+      {
+        "title": "Kiểm soát chi phí trên mỗi lượt nhấp (CPC)",
+        "evidence": "CPC dao động từ 1.875 VND đến 2.143 VND, cho thấy sự biến động nhẹ khi tăng ngân sách.",
+        "limitation": "Chưa có dữ liệu về đối tượng mục tiêu (Audience) hoặc vị trí hiển thị quảng cáo.",
+        "action": "Xem xét lại tệp đối tượng hoặc điều chỉnh giá thầu nếu CPC tiếp tục có xu hướng tăng khi tăng ngân sách.",
+        "verification": "Theo dõi biến động CPC trong các ngày tiếp theo khi duy trì ngân sách cao để xem có ổn định quanh mức 2.000 VND hay không."
+      }
+    ],
+    "status": "ready",
+    "source": "Gemini",
+    "model": "gemini-3.1-flash-lite",
+    "generatedAt": "2026-11-08T05:07:10.997Z",
+    "snapshotId": "snap_1794114427303_xdusx8fz",
+    "dataVersion": "bf4ebfa"
+  },
+  "chatStatus": 200,
+  "chat": {
+    "answer": "Chào bạn, tôi là trợ lý AdPulse. Dựa trên snapshot từ ngày 01/11/2026 đến 05/11/2026, thông tin bạn yêu cầu như sau:\n\n*   **Tổng chi phí (Spend):** 2.970.000 VNĐ.\n*   **Tổng số đơn hàng (Orders):** 60 đơn.\n*   **Tỷ lệ nhấp (CTR):** 2,95%.\n\n**Nhận xét và gợi ý:**\n\nHiện tại không có dữ liệu lịch sử hoặc benchmark để so sánh, vì vậy các gợi ý dưới đây mang tính chất tối ưu hóa dựa trên biến động hàng ngày:\n\n1.  **Tối ưu hóa ngân sách theo ngày có CPA tốt nhất:** Ngày 04/11 có CPA thấp nhất là 48.000 đ (trung bình kỳ là 49.500 đ).\n    *   *Hành động:* Xem xét cấu trúc tệp đối tượng hoặc nội dung quảng cáo được chạy vào ngày 04/11.\n    *   *Cách kiểm tra:* So sánh thông số kỹ thuật (Targeting/Creative) của ngày 04/11 với các ngày còn lại để xác định yếu tố giúp giảm chi phí trên mỗi đơn hàng.\n\n2.  **Kiểm soát sự gia tăng của CPC:** CPC đạt mức cao nhất là 2.143 đ vào ngày 02/11 và 05/11.\n    *   *Hành động:* Kiểm tra lại tần suất hiển thị (frequency) hoặc mức độ cạnh tranh của phiên đấu giá vào những ngày này.\n    *   *Cách kiểm tra:* Theo dõi chỉ số tần suất quảng cáo nếu có dữ liệu bổ sung để tránh việc người dùng thấy quảng cáo quá nhiều gây lãng phí ngân sách.\n\n3.  **Cải thiện tỷ lệ chuyển đổi (CVR) trong ngày có CVR thấp:** Ngày 03/11 có CVR thấp nhất là 3,75% (trung bình kỳ là 4,11%).\n    *   *Hành động:* Rà soát trải nghiệm tại Landing Page hoặc thông điệp quảng cáo của ngày 03/11.\n    *   *Cách kiểm tra:* Đối chiếu xem có sự thay đổi nào về thông tin sản phẩm hoặc trang đích so với các ngày khác để tìm nguyên nhân làm giảm tỷ lệ chuyển đổi.\n\n*Lưu ý: Nếu bạn có mục tiêu cụ thể (ví dụ: target CPA hoặc target CVR), vui lòng cung cấp thêm để tôi phân tích chính xác hơn.*",
+    "source": "Gemini",
+    "model": "gemini-3.1-flash-lite",
+    "snapshotId": "snap_1794114427303_xdusx8fz"
+  },
+  "pdfDownloaded": true
+}

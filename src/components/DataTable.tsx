@@ -1,3 +1,4 @@
+import { validateRow } from '../utils/validation';
 import React, { useState } from 'react';
 import { DailyAdRecord, CalculatedDailyRecord } from '../types/campaign';
 import { formatVND, formatPercent } from '../utils/kpiEngine';
@@ -46,8 +47,8 @@ export const DataTable: React.FC<DataTableProps> = ({
 
   const handleQuickAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!quickDate || !quickSpend) {
-      alert('Vui lòng nhập ít nhất Ngày và Chi phí');
+    if (!quickDate || [quickSpend, quickReach, quickClicks, quickOrders].some(v => v.trim() === '')) {
+      alert('Vui lòng nhập ngày và đủ 4 ô số; nhập 0 nếu thực sự bằng 0.');
       return;
     }
 
@@ -64,6 +65,7 @@ export const DataTable: React.FC<DataTableProps> = ({
       notes: quickNotes
     };
 
+    if (!validateRow(newRec).isValid) { alert('Ngày hoặc số liệu không hợp lệ.'); return; }
     onAddSingle(newRec);
 
     // Reset quick inputs
@@ -105,6 +107,7 @@ export const DataTable: React.FC<DataTableProps> = ({
       notes: editValues.notes ?? original.notes
     };
 
+    if (!validateRow(updated).isValid) { alert('Vui lòng sửa các ô trống hoặc không hợp lệ.'); return; }
     onUpdate(updated);
     setEditingId(null);
     setEditValues({});
@@ -272,32 +275,32 @@ export const DataTable: React.FC<DataTableProps> = ({
                       <td className="py-2.5 px-3 text-right">
                         <input
                           type="number"
-                          value={editValues.reach ?? ''}
-                          onChange={(e) => setEditValues({ ...editValues, reach: Number(e.target.value) })}
+                          value={Number.isFinite(editValues.reach) ? editValues.reach : ""}
+                          onChange={(e) => setEditValues({ ...editValues, reach: e.target.value === '' ? NaN : Number(e.target.value) })}
                           className="w-20 bg-slate-900 border border-indigo-500 px-2 py-1 rounded text-xs font-mono text-white text-right"
                         />
                       </td>
                       <td className="py-2.5 px-3 text-right">
                         <input
                           type="number"
-                          value={editValues.clicks ?? ''}
-                          onChange={(e) => setEditValues({ ...editValues, clicks: Number(e.target.value) })}
+                          value={Number.isFinite(editValues.clicks) ? editValues.clicks : ""}
+                          onChange={(e) => setEditValues({ ...editValues, clicks: e.target.value === '' ? NaN : Number(e.target.value) })}
                           className="w-16 bg-slate-900 border border-indigo-500 px-2 py-1 rounded text-xs font-mono text-white text-right"
                         />
                       </td>
                       <td className="py-2.5 px-3 text-right">
                         <input
                           type="number"
-                          value={editValues.spend ?? ''}
-                          onChange={(e) => setEditValues({ ...editValues, spend: Number(e.target.value) })}
+                          value={Number.isFinite(editValues.spend) ? editValues.spend : ""}
+                          onChange={(e) => setEditValues({ ...editValues, spend: e.target.value === '' ? NaN : Number(e.target.value) })}
                           className="w-24 bg-slate-900 border border-indigo-500 px-2 py-1 rounded text-xs font-mono text-white text-right"
                         />
                       </td>
                       <td className="py-2.5 px-3 text-right">
                         <input
                           type="number"
-                          value={editValues.orders ?? ''}
-                          onChange={(e) => setEditValues({ ...editValues, orders: Number(e.target.value) })}
+                          value={Number.isFinite(editValues.orders) ? editValues.orders : ""}
+                          onChange={(e) => setEditValues({ ...editValues, orders: e.target.value === '' ? NaN : Number(e.target.value) })}
                           className="w-16 bg-slate-900 border border-indigo-500 px-2 py-1 rounded text-xs font-mono text-white text-right"
                         />
                       </td>

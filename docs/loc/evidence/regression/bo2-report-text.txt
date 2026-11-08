@@ -1,0 +1,22 @@
+BÁO CÁO CHIẾN DỊCH FACEBOOK ADS
+Kỳ: 01/11/2026 – 04/11/2026 (4/4 ngày có dữ liệu)
+
+1. SỐ LIỆU CHÍNH
+- Chi phí: 950.000 đ
+- Reach (tổng các ngày, không phải người duy nhất cả kỳ): 11.000
+- Click: 1.470
+- Số đơn: 17
+
+2. CHỈ SỐ
+- CTR (click/reach): 13.36%
+- CPC (chi phí/click): 646 đ
+- Chi phí mỗi đơn: 55.882 đ
+
+3. LƯU Ý DỮ LIỆU
+- Ngày 01/11/2026: CTR (Reach = 0, chưa có cơ sở tính CTR)
+- Ngày 04/11/2026: CTR (Clicks lớn hơn Reach (bất thường))
+
+4. GỢI Ý AI
+Chưa có nhận xét AI. Số liệu KPI vẫn được tính độc lập.
+
+Snapshot snap_1794114532005_ua3uerhp · dữ liệu v81d119e2 · tạo lúc 12:08 08/11/2026

@@ -79,12 +79,23 @@ export async function downloadPptx(snapshot: CampaignReportSnapshot, dataVersion
   s.addText('Lưu ý dữ liệu & gợi ý', { x: 0.5, y: 0.3, w: 9, h: 0.5, fontSize: 22, bold: true, color: DARK, fontFace: 'Arial' });
   const notes = collectDataNotes(snapshot);
   if (notes.length === 0) notes.push('Không có cảnh báo dữ liệu.');
-  notes.push('Gợi ý AI: chưa có trong bản này (do Lộc tích hợp).');
+  if (!snapshot.ai) notes.push('Chưa có nhận xét AI.');
   s.addText(notes.map(t => ({ text: t, options: { bullet: true, breakLine: true } })), {
     x: 0.6, y: 1.1, w: 8.8, h: 3.7, fontSize: 13, color: DARK, fontFace: 'Arial', valign: 'top'
   });
   addFooter(s);
 
+  if (snapshot.ai?.status === 'ready') {
+    const ai = snapshot.ai;
+    const pages = [{ title: 'Nhận xét AI', body: ai.source + ' · ' + ai.model + '\n' + ai.summary },
+      ...ai.suggestions.map((v, i) => ({ title: (i+1) + '. ' + v.title, body: 'Căn cứ: ' + v.evidence + '\n\nGiới hạn: ' + v.limitation + '\n\nHành động: ' + v.action + '\n\nKiểm tra: ' + v.verification }))];
+    for (const page of pages) {
+      const slide = pptx.addSlide();
+      slide.addText(page.title, { x: 0.5, y: 0.3, w: 9, h: 0.6, fontSize: 22, bold: true, fontFace: 'Arial', fit: 'shrink' });
+      slide.addText(page.body, { x: 0.5, y: 1, w: 9, h: 4, fontSize: 16, fontFace: 'Arial', fit: 'shrink', valign: 'top' });
+      addFooter(slide);
+    }
+  }
   const name = pptxFileName(snapshot);
   await pptx.writeFile({ fileName: name });
   return name;

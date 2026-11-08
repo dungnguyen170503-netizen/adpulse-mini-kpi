@@ -128,10 +128,10 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
     return rows.map(row => {
       const record: Partial<DailyAdRecord> = {
         date: row.date,
-        spend: row.spend === '' ? 0 : Number(row.spend),
-        reach: row.reach === '' ? 0 : Number(row.reach),
-        clicks: row.clicks === '' ? 0 : Number(row.clicks),
-        orders: row.orders === '' ? 0 : Number(row.orders),
+        spend: row.spend === '' ? NaN : Number(row.spend),
+        reach: row.reach === '' ? NaN : Number(row.reach),
+        clicks: row.clicks === '' ? NaN : Number(row.clicks),
+        orders: row.orders === '' ? NaN : Number(row.orders),
       };
 
       const val = validateRow(record);

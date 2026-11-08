@@ -20,35 +20,35 @@ export function validateRow(row: Partial<DailyAdRecord>): RowValidationResult {
       errors.date = 'Định dạng ngày phải là YYYY-MM-DD';
     } else {
       const parsed = new Date(row.date);
-      if (isNaN(parsed.getTime())) {
+      if (isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== row.date) {
         errors.date = 'Ngày không tồn tại hợp lệ';
       }
     }
   }
 
   // 2. Kiểm tra Chi phí (Spend)
-  if (row.spend === undefined || row.spend === null || isNaN(Number(row.spend))) {
+  if (row.spend === undefined || row.spend === null || !Number.isFinite(Number(row.spend))) {
     errors.spend = 'Chi phí phải là số';
   } else if (Number(row.spend) < 0) {
     errors.spend = 'Chi phí không được là số âm';
   }
 
   // 3. Kiểm tra Lượt tiếp cận (Reach)
-  if (row.reach === undefined || row.reach === null || isNaN(Number(row.reach))) {
+  if (row.reach === undefined || row.reach === null || !Number.isFinite(Number(row.reach))) {
     errors.reach = 'Reach phải là số';
   } else if (Number(row.reach) < 0) {
     errors.reach = 'Reach không được là số âm';
   }
 
   // 4. Kiểm tra Lượt click (Clicks)
-  if (row.clicks === undefined || row.clicks === null || isNaN(Number(row.clicks))) {
+  if (row.clicks === undefined || row.clicks === null || !Number.isFinite(Number(row.clicks))) {
     errors.clicks = 'Clicks phải là số';
   } else if (Number(row.clicks) < 0) {
     errors.clicks = 'Clicks không được là số âm';
   }
 
   // 5. Kiểm tra Đơn hàng (Orders)
-  if (row.orders === undefined || row.orders === null || isNaN(Number(row.orders))) {
+  if (row.orders === undefined || row.orders === null || !Number.isFinite(Number(row.orders))) {
     errors.orders = 'Đơn hàng phải là số';
   } else if (Number(row.orders) < 0) {
     errors.orders = 'Đơn hàng không được là số âm';

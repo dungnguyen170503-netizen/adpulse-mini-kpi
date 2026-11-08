@@ -1,3 +1,4 @@
+import { AiPanel } from './components/AiPanel';
 import React, { useState, useEffect, useMemo } from 'react';
 import { DailyAdRecord, CampaignReportSnapshot, PeriodSummaryRecord } from './types/campaign';
 import {
@@ -26,7 +27,7 @@ import { Toast } from './components/Toast';
 import { PeriodFilterBar } from './components/PeriodFilterBar';
 import { AnalysisView } from './components/AnalysisView';
 import { ReportView } from './components/ReportView';
-import { PeriodFilter, filterRecords, resolvePeriod, periodLabel, buildDailySeries } from './report/reportModel';
+import { PeriodFilter, filterRecords, resolvePeriod, periodLabel, buildDailySeries, dataVersionOf } from './report/reportModel';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -102,6 +103,8 @@ export const App: React.FC = () => {
   const snapshot: CampaignReportSnapshot = useMemo(() => {
     // Lọc kỳ rồi đưa vào lõi KPI của Dũng; không tính KPI ở nơi khác.
     const snap = calculatePeriodAggregates(filterRecords(records, periodFilter));
+    const period = resolvePeriod(records, periodFilter);
+    if (period) { snap.meta.periodStart = period.from; snap.meta.periodEnd = period.to; }
     if (summarySnapshot) {
       snap.summaryRecord = summarySnapshot;
     }
@@ -251,12 +254,13 @@ export const App: React.FC = () => {
           daysInRange={seriesInfo.daysInRange}
         />
 
-        {tab === 'analysis' && <AnalysisView snapshot={snapshot} />}
+        {tab === 'analysis' && <><AnalysisView snapshot={snapshot} /><AiPanel key={snapshot.meta.snapshotId} snapshot={dataVersionOf(frozenSnapshot) === dataVersionOf(snapshot) ? { ...snapshot, ai: frozenSnapshot.ai } : snapshot} onReady={(ai) => setFrozenSnapshot({ ...snapshot, ai })} /></>}
         {tab === 'report' && (
           <ReportView
             current={snapshot}
             frozen={frozenSnapshot}
             onRefreshFrozen={() => setFrozenSnapshot(snapshot)}
+            onAi={(ai) => setFrozenSnapshot(previous => previous.meta.snapshotId === ai.snapshotId ? { ...previous, ai } : previous)}
             onOpenPdf={(snap) => { setPdfSnapshot(snap); setIsPdfModalOpen(true); }}
             onToast={showToast}
           />
@@ -362,7 +366,7 @@ export const App: React.FC = () => {
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">
         <p>
-          AdPulse Mini KPI Dashboard • Đề 7, Bảng B • Phụ trách bởi Thanh Dũng (Data, KpiEngine, LocalStorage, Import & PDF Export)
+          AdPulse Mini KPI Dashboard • Đề 7, Bảng B • Dũng · Dữ liệu/PDF | Khoa · Dashboard/Text/PPTX | Lộc · AI/Chat/HTML
         </p>
         <p className="text-[11px] text-slate-600 mt-1">
           Xuất PDF trực tiếp từ Snapshot chung • Đối chiếu khớp 100% với Dashboard • Chữ Việt sắc nét không lỗi font
@@ -397,7 +401,7 @@ export const App: React.FC = () => {
       <PdfExportModal
         isOpen={isPdfModalOpen}
         onClose={() => { setIsPdfModalOpen(false); setPdfSnapshot(null); }}
-        snapshot={pdfSnapshot ?? snapshot}
+        snapshot={pdfSnapshot ?? (dataVersionOf(frozenSnapshot) === dataVersionOf(snapshot) ? { ...snapshot, ai: frozenSnapshot.ai } : snapshot)}
       />
 
       {/* Modal Xử Lý Trùng Lặp Ngày */}

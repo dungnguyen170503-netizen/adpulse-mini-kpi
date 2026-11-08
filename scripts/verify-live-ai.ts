@@ -1,0 +1,11 @@
+import { DATASET_1_NORMAL } from '../src/data/sampleData';
+import { calculatePeriodAggregates } from '../src/utils/kpiEngine';
+import { mkdirSync, writeFileSync } from 'node:fs';
+const snapshot = calculatePeriodAggregates(DATASET_1_NORMAL);
+const start = Date.now();
+const response = await fetch('http://127.0.0.1:3001/api/ai/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ snapshot }), signal: AbortSignal.timeout(100000) });
+const body = await response.json();
+mkdirSync('docs/loc/evidence', { recursive: true });
+writeFileSync('docs/loc/evidence/live-ai.json', JSON.stringify({ status: response.status, durationMs: Date.now() - start, response: body }, null, 2));
+console.log(JSON.stringify({ status: response.status, durationMs: Date.now() - start, suggestions: body.suggestions?.length, error: body.error }));
+process.exitCode = response.ok ? 0 : 1;

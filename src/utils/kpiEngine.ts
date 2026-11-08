@@ -22,7 +22,7 @@ export function formatVND(val: number | null | undefined, fallback = '—'): str
 /**
  * Định dạng phần trăm
  */
-export function formatPercent(val: number | null | undefined, fallback = '0.00%'): string {
+export function formatPercent(val: number | null | undefined, fallback = '—'): string {
   if (val === null || val === undefined || isNaN(val)) return fallback;
   return `${val.toFixed(2)}%`;
 }
@@ -41,7 +41,7 @@ export function calculateDailyMetrics(record: DailyAdRecord): CalculatedKPIs {
   if (reach <= 0) {
     ctr = {
       value: null,
-      formatted: '0.00%',
+      formatted: '—',
       status: 'zero_division',
       warningMessage: 'Reach = 0, chưa có cơ sở tính CTR'
     };
@@ -112,7 +112,7 @@ export function calculateDailyMetrics(record: DailyAdRecord): CalculatedKPIs {
   if (clicks <= 0) {
     cvr = {
       value: null,
-      formatted: '0.00%',
+      formatted: '—',
       status: 'zero_division'
     };
   } else {
@@ -124,6 +124,12 @@ export function calculateDailyMetrics(record: DailyAdRecord): CalculatedKPIs {
     };
   }
 
+  const missing = (...values: unknown[]) => values.some(v => typeof v !== 'number' || !Number.isFinite(v));
+  const unavailable: MetricValue<number> = { value: null, formatted: '—', status: 'missing_data', warningMessage: 'Thiếu hoặc sai số liệu; cần sửa trước khi lưu' };
+  if (missing(record.reach, record.clicks)) ctr = { ...unavailable };
+  if (missing(record.spend, record.clicks)) cpc = { ...unavailable };
+  if (missing(record.spend, record.orders)) cpa = { ...unavailable };
+  if (missing(record.orders, record.clicks)) cvr = { ...unavailable };
   return { ctr, cpc, cpa, cvr };
 }
 
@@ -167,7 +173,7 @@ export function calculatePeriodAggregates(records: DailyAdRecord[]): CampaignRep
       zeroDivisionCount++;
     }
 
-    if (!r.reach || !r.clicks || !r.spend) {
+    if ([r.reach, r.clicks, r.spend, r.orders].some(v => v == null)) {
       missingFieldsCount++;
     }
 
@@ -188,7 +194,7 @@ export function calculatePeriodAggregates(records: DailyAdRecord[]): CampaignRep
   if (totalReach <= 0) {
     periodCtr = {
       value: null,
-      formatted: '0.00%',
+      formatted: '—',
       status: 'zero_division',
       warningMessage: 'Tổng Reach = 0'
     };
@@ -242,7 +248,7 @@ export function calculatePeriodAggregates(records: DailyAdRecord[]): CampaignRep
   if (totalClicks <= 0) {
     periodCvr = {
       value: null,
-      formatted: '0.00%',
+      formatted: '—',
       status: 'zero_division'
     };
   } else {
@@ -259,11 +265,11 @@ export function calculatePeriodAggregates(records: DailyAdRecord[]): CampaignRep
 
   return {
     meta: {
-      snapshotId: `snap_${Date.now()}`,
+      snapshotId: `snap_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
       generatedAt: new Date().toISOString(),
       periodStart,
       periodEnd,
-      totalDays: sorted.length,
+      totalDays: new Set(sorted.map(r => r.date)).size,
       currency: 'VND',
       campaignName: 'Chiến dịch Facebook Ads',
       hasDailyBreakdown: sorted.length > 0
