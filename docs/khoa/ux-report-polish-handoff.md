@@ -93,3 +93,18 @@ Toàn bộ ảnh chụp đối chiếu được lưu tại `docs/khoa/evidence/u
 4. `node docs/khoa/evidence/e2e.cjs docs/loc/evidence/regression`: **21/21 PASS**.
 5. `node scripts/verify-loc-ui.cjs`: **8/8 PASS**.
 6. `npm run build`: **PASS**.
+
+---
+
+## 7. Link Pull Request & Nội Dung Bàn Giao Cho Lộc và Dũng
+
+- **Link PR #5 (`codex/khoa-ux-report-polish` → `codex/loc-ai-integration`)**: https://github.com/dungnguyen170503-netizen/adpulse-mini-kpi/pull/5
+
+### 7.1. Nội dung gửi cho Dũng (Phối hợp dữ liệu Tổng kỳ & OCR)
+- Đã gộp nhánh `codex/dung-data-ocr-fix` vào `codex/khoa-ux-report-polish` (xem **Mục 3** ở trên).
+- Khi chọn ảnh tổng kỳ (`summary-ads.png` hoặc nút `Ảnh tổng kỳ mẫu`), hàm `buildSnapshotFromSummary` gọi trực tiếp `calculateDailyMetrics` của Dũng, giữ `dailyRecords = []` (không tạo ngày giả), tab `Phân tích` giải thích rõ vì sao biểu đồ ngày không có điểm, và cả **Dashboard + 4 định dạng xuất (`Text`, `PDF`, `HTML`, `PPTX`)** đều khớp 100% kỳ `01/11/2026 – 07/11/2026`, nguồn `summary-ads.png` và các chỉ số: Chi phí `3.500.000 đ`, Reach `50.000`, Click `1.500`, Đơn `50`, CTR `3.00%`, CPC `2.333 đ`, CPA `70.000 đ`.
+
+### 7.2. Nội dung gửi cho Lộc (Review & Merge về `codex/loc-ai-integration`)
+- Đã hoàn thiện luồng nhập liệu (gom dưới nút chính `Nhập dữ liệu`, tách `Dùng dữ liệu mẫu`), bố cục tab `Báo cáo` (đưa 3 KPI chính + nút xuất lên đầu, thu gọn phần AI dài xuống dưới), cảnh báo báo cáo cũ sau khi đổi kỳ/dữ liệu, và cập nhật `server/ai.ts` + `htmlReport.ts` nhận cả `summaryRecord` (xem **Mục 1, 2, 4, 5, 6** ở trên).
+- Đã chạy pass toàn bộ `npm test` (15/15), `verify-loc-ui.cjs` (8/8), `e2e.cjs` (21/21) và `verify-khoa-ux-polish.cjs` (29/29).
+
