@@ -107,6 +107,11 @@ export const DataTable: React.FC<DataTableProps> = ({
       notes: editValues.notes ?? original.notes
     };
 
+    const targetDate = editValues.date || original.date;
+    if (records.some(r => r.id !== id && r.date === targetDate)) {
+      alert("Ngày " + targetDate + " đã tồn tại trong danh sách. Không thể đổi sang ngày trùng.");
+      return;
+    }
     if (!validateRow(updated).isValid) { alert('Vui lòng sửa các ô trống hoặc không hợp lệ.'); return; }
     onUpdate(updated);
     setEditingId(null);

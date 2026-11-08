@@ -5,7 +5,8 @@ import {
   saveCampaignData,
   loadCampaignData,
   clearCampaignData,
-  getLastSavedTimestamp
+  getLastSavedTimestamp,
+  markAppInitialized
 } from './utils/storage';
 import { calculatePeriodAggregates, formatVND, formatPercent } from './utils/kpiEngine';
 import { mergeDuplicateRecords, findDuplicateDates } from './utils/validation';
@@ -49,7 +50,8 @@ export const App: React.FC = () => {
   // 1. Khởi tạo state dữ liệu theo ngày từ LocalStorage
   const [records, setRecords] = useState<DailyAdRecord[]>(() => {
     const saved = loadCampaignData();
-    if (saved && saved.length > 0) return saved;
+    if (saved !== null) return saved;
+    markAppInitialized();
     return DEFAULT_CAMPAIGN_DATA;
   });
 
@@ -410,7 +412,10 @@ export const App: React.FC = () => {
         duplicateDates={duplicateModal.dates}
         onMerge={handleMergeDuplicates}
         onOverwrite={handleOverwriteDuplicates}
-        onCancel={() => setDuplicateModal({ isOpen: false, dates: [] })}
+        onCancel={() => {
+          setDuplicateModal({ isOpen: false, dates: [] });
+          showToast('Đã hủy thao tác nạp trùng ngày. Dữ liệu và số tổng giữ nguyên.', 'info');
+        }}
       />
 
       {/* Toast Notification */}

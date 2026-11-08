@@ -5,7 +5,7 @@ function calculateDailyMetrics(spend, reach, clicks, orders) {
   // 1. CTR = (Clicks / Reach) * 100
   let ctr;
   if (reach <= 0) {
-    ctr = { value: null, formatted: '0.00%', status: 'zero_division' };
+    ctr = { value: null, formatted: '—', status: 'zero_division' };
   } else {
     const rawCtr = (clicks / reach) * 100;
     ctr = { value: Number(rawCtr.toFixed(2)), formatted: `${rawCtr.toFixed(2)}%`, status: 'valid' };
@@ -32,7 +32,7 @@ function calculateDailyMetrics(spend, reach, clicks, orders) {
   // 4. CVR = (Orders / Clicks) * 100
   let cvr;
   if (clicks <= 0) {
-    cvr = { value: null, formatted: '0.00%', status: 'zero_division' };
+    cvr = { value: null, formatted: '—', status: 'zero_division' };
   } else {
     const rawCvr = (orders / clicks) * 100;
     cvr = { value: Number(rawCvr.toFixed(2)), formatted: `${rawCvr.toFixed(2)}%`, status: 'valid' };
