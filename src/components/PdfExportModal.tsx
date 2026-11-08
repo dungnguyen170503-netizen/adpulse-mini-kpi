@@ -1,17 +1,14 @@
 import { aiReportText } from '../report/aiReport';
 import React, { useRef, useState } from 'react';
 import { CampaignReportSnapshot } from '../types/campaign';
-import { formatVND, formatPercent } from '../utils/kpiEngine';
+import { formatVND } from '../utils/kpiEngine';
 import { downloadPdfFromElement, printReportDirectly } from '../utils/pdfGenerator';
+import { calendarDaysBetween, formatDateVN, sourceLabelOf } from '../report/reportModel';
 import {
   X,
   FileDown,
   Printer,
   CheckCircle2,
-  ShieldCheck,
-  Calendar,
-  Sparkles,
-  Info,
   Loader2
 } from 'lucide-react';
 
@@ -34,7 +31,10 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
 
   if (!isOpen) return null;
 
-  const { meta, totals, kpis, dailyRecords, summaryRecord, dataIntegrity } = snapshot;
+  const { meta, totals, kpis, dailyRecords, summaryRecord } = snapshot;
+  const sourceLabel = sourceLabelOf(snapshot);
+  const isSummaryOnly = !!summaryRecord && dailyRecords.length === 0;
+  const calDays = isSummaryOnly ? calendarDaysBetween(meta.periodStart, meta.periodEnd) : meta.totalDays;
 
   const handleDownloadPdf = async () => {
     if (!reportRef.current) return;
@@ -46,7 +46,6 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
       await downloadPdfFromElement(reportRef.current, fileName, (p) => setExportProgress(p));
     } catch (error) {
       console.error('Lỗi khi xuất PDF:', error);
-      alert('Có lỗi xảy ra khi tạo file PDF. Vui lòng thử dùng nút "In / Lưu PDF Trình Duyệt".');
     } finally {
       setIsExporting(false);
       setExportProgress(0);
@@ -68,11 +67,12 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
               </h2>
             </div>
             <p className="text-xs text-slate-400 mt-1">
-              Xuất trực tiếp từ Snapshot chung • Đối chiếu khớp 100% với Dashboard • Chữ Việt sắc nét không lỗi font
+              Xuất trực tiếp từ Snapshot chung • Đối chiếu khớp 100% kỳ, nguồn và KPI với Dashboard
             </p>
           </div>
           <button
             onClick={onClose}
+            aria-label="Đóng hộp thoại PDF"
             className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
           >
             <X className="w-5 h-5" />
@@ -113,7 +113,6 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Nút Browser Print (Fallback cực kỳ đáng tin cậy) */}
             <button
               type="button"
               onClick={printReportDirectly}
@@ -124,7 +123,6 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
               <span>In / Lưu PDF Trình Duyệt</span>
             </button>
 
-            {/* Nút Tải Trực Tiếp File PDF */}
             <button
               type="button"
               disabled={isExporting}
@@ -148,9 +146,9 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
 
         {/* Modal Body: Khung Xem Trước Bản In A4 (Printable Sheet) */}
         <div className="p-4 md:p-8 overflow-y-auto flex-1 bg-slate-950 flex justify-center">
-          {/* Tờ A4 Báo Cáo Chuẩn (Trắng, chữ đen/xanh đậm chuyên nghiệp) */}
           <div
             ref={reportRef}
+            data-testid="pdf-preview-sheet"
             className="w-full max-w-[800px] bg-white text-slate-900 p-8 sm:p-10 shadow-2xl rounded-sm print:m-0 print:p-6 print:shadow-none space-y-6 text-sm font-sans"
             style={{ minHeight: '1100px' }}
           >
@@ -164,15 +162,21 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
                   {reportTitle}
                 </h1>
                 <p className="text-xs text-slate-600 font-medium mt-1">
-                  Chiến dịch: <b>{meta.campaignName}</b> • Đơn vị tiền tệ: <b>VNĐ</b>
+                  Chiến dịch: <b>{meta.campaignName}</b> • Nguồn dữ liệu: <b>{sourceLabel}</b> • Tiền tệ: <b>VNĐ</b>
                 </p>
               </div>
 
               <div className="text-right text-xs text-slate-500 space-y-0.5">
                 <p className="font-semibold text-slate-800">
-                  Kỳ báo cáo: <span className="font-mono text-indigo-900 font-bold">{meta.periodStart || '—'}</span> đến <span className="font-mono text-indigo-900 font-bold">{meta.periodEnd || '—'}</span>
+                  Kỳ báo cáo: <span className="font-mono text-indigo-900 font-bold">{formatDateVN(meta.periodStart)}</span> – <span className="font-mono text-indigo-900 font-bold">{formatDateVN(meta.periodEnd)}</span>
                 </p>
-                <p>Tổng số ngày: <b>{meta.totalDays} ngày</b></p>
+                <p>
+                  {isSummaryOnly ? (
+                    <span>Loại dữ liệu: <b>Tổng kỳ từ ảnh ({calDays || '—'} ngày lịch)</b></span>
+                  ) : (
+                    <span>Tổng số ngày có dữ liệu: <b>{meta.totalDays} ngày</b></span>
+                  )}
+                </p>
                 <p className="text-[10px] text-slate-400 font-mono">Snapshot ID: {meta.snapshotId}</p>
                 <p className="text-[10px] text-slate-400">Xuất lúc: {new Date(meta.generatedAt).toLocaleString('vi-VN')}</p>
               </div>
@@ -184,6 +188,13 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Tổng Chi Phí</span>
                 <div className="text-lg font-black text-slate-950 font-mono mt-1">
                   {formatVND(totals.spend)}
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Tổng Đơn Hàng</span>
+                <div className="text-lg font-black text-emerald-800 font-mono mt-1">
+                  {totals.orders.toLocaleString('vi-VN')} đơn
                 </div>
               </div>
 
@@ -200,17 +211,18 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
                   {totals.clicks.toLocaleString('vi-VN')}
                 </div>
               </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Tổng Đơn Hàng</span>
-                <div className="text-lg font-black text-emerald-800 font-mono mt-1">
-                  {totals.orders.toLocaleString('vi-VN')} đơn
-                </div>
-              </div>
             </div>
 
             {/* Khối 3 Chỉ Số KPI Cốt Lõi (Theo Đề 7 & C1 Contract) */}
             <div className="grid grid-cols-3 gap-3">
+              <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200">
+                <span className="text-[10px] font-bold text-emerald-900 uppercase tracking-wider block">CPA Toàn Kỳ (Chi Phí / Đơn)</span>
+                <div className="text-2xl font-black text-emerald-950 font-mono mt-1">
+                  {kpis.cpa.formatted}
+                </div>
+                <span className="text-[10px] text-slate-500 mt-0.5 block">Tổng Chi Phí / Tổng Đơn Hàng</span>
+              </div>
+
               <div className="p-4 rounded-xl bg-indigo-50/60 border border-indigo-200">
                 <span className="text-[10px] font-bold text-indigo-800 uppercase tracking-wider block">CTR Toàn Kỳ (Click-Through Rate)</span>
                 <div className="text-2xl font-black text-indigo-950 font-mono mt-1">
@@ -226,36 +238,28 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
                 </div>
                 <span className="text-[10px] text-slate-500 mt-0.5 block">Tổng Chi Phí / Tổng Clicks</span>
               </div>
-
-              <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200">
-                <span className="text-[10px] font-bold text-emerald-900 uppercase tracking-wider block">CPA Toàn Kỳ (Chi Phí / Đơn)</span>
-                <div className="text-2xl font-black text-emerald-950 font-mono mt-1">
-                  {kpis.cpa.formatted}
-                </div>
-                <span className="text-[10px] text-slate-500 mt-0.5 block">Tổng Chi Phí / Tổng Đơn Hàng</span>
-              </div>
             </div>
 
             {/* Nếu có Snapshot từ ảnh tổng kỳ */}
             {summaryRecord && (
               <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 text-xs text-purple-950">
-                <p className="font-bold">Ghi nhận Snapshot Tổng Kỳ (Từ Ảnh Chụp Ads):</p>
+                <p className="font-bold">Ghi nhận Nguồn Ảnh Chụp Tổng Kỳ ({sourceLabel}):</p>
                 <p className="mt-0.5">
-                  Kỳ: {summaryRecord.period_start} - {summaryRecord.period_end} • Chi phí: {formatVND(summaryRecord.total_spend)} • Reach: {summaryRecord.total_reach.toLocaleString()} • Clicks: {summaryRecord.total_clicks.toLocaleString()} • Đơn: {summaryRecord.total_orders} (Bảo toàn dữ liệu thực, không chia nhỏ ngày giả).
+                  Kỳ: {formatDateVN(summaryRecord.period_start)} – {formatDateVN(summaryRecord.period_end)} • Chi phí: {formatVND(summaryRecord.total_spend)} • Reach: {summaryRecord.total_reach.toLocaleString('vi-VN')} • Clicks: {summaryRecord.total_clicks.toLocaleString('vi-VN')} • Đơn: {summaryRecord.total_orders} (Bảo toàn dữ liệu thực từ ảnh tổng kỳ, không chia nhỏ ngày giả).
                 </p>
               </div>
             )}
 
-            {/* Bảng Chi Tiết Từng Ngày */}
+            {/* Bảng Chi Tiết Từng Ngày hoặc Tổng Kỳ */}
             <div className="space-y-2">
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                Chi Tiết Hiệu Quả Từng Ngày
+                {isSummaryOnly ? 'Bảng Tổng Hợp Kỳ (Từ Ảnh Chụp Tổng Kỳ)' : 'Chi Tiết Hiệu Quả Từng Ngày'}
               </h3>
 
               <table className="w-full text-left text-xs border border-slate-300 border-collapse">
                 <thead>
                   <tr className="bg-slate-100 text-slate-700 border-b border-slate-300 font-bold">
-                    <th className="py-2 px-2.5">Ngày</th>
+                    <th className="py-2 px-2.5">Ngày / Kỳ</th>
                     <th className="py-2 px-2.5 text-right">Reach</th>
                     <th className="py-2 px-2.5 text-right">Clicks</th>
                     <th className="py-2 px-2.5 text-right">Chi Phí (VNĐ)</th>
@@ -266,7 +270,20 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 font-mono text-[11px]">
-                  {dailyRecords.length === 0 ? (
+                  {isSummaryOnly ? (
+                    <tr>
+                      <td className="py-2 px-2.5 font-bold text-slate-900 font-sans">
+                        {formatDateVN(meta.periodStart)} – {formatDateVN(meta.periodEnd)} (Tổng kỳ)
+                      </td>
+                      <td className="py-2 px-2.5 text-right">{totals.reachSum.toLocaleString('vi-VN')}</td>
+                      <td className="py-2 px-2.5 text-right">{totals.clicks.toLocaleString('vi-VN')}</td>
+                      <td className="py-2 px-2.5 text-right font-bold">{formatVND(totals.spend)}</td>
+                      <td className="py-2 px-2.5 text-right text-emerald-800 font-bold">{totals.orders}</td>
+                      <td className="py-2 px-2.5 text-right text-indigo-900">{kpis.ctr.formatted}</td>
+                      <td className="py-2 px-2.5 text-right text-amber-900">{kpis.cpc.formatted}</td>
+                      <td className="py-2 px-2.5 text-right text-emerald-900">{kpis.cpa.formatted}</td>
+                    </tr>
+                  ) : dailyRecords.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="py-4 text-center text-slate-500 font-sans">
                         Không có dữ liệu chi tiết theo ngày.
@@ -287,7 +304,7 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
                     ))
                   )}
                 </tbody>
-                {dailyRecords.length > 0 && (
+                {(dailyRecords.length > 0 || isSummaryOnly) && (
                   <tfoot className="bg-slate-100 border-t-2 border-slate-400 font-bold font-mono text-[11px]">
                     <tr>
                       <td className="py-2 px-2.5 uppercase font-sans text-slate-900">Tổng Toàn Kỳ</td>
@@ -307,19 +324,23 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
             {/* Chú thích & Cam Kết Dữ Liệu (Footnotes & Audit) */}
             <div className="pt-4 border-t border-slate-200 text-[11px] text-slate-500 space-y-1">
               <p>
-                <b>*Ghi chú về Tổng Reach:</b> Số liệu Reach ở đây là tổng lượt tiếp cận tích luỹ theo ngày cộng dồn, không đại diện cho số người tiếp cận duy nhất (Unique Reach) của toàn chiến dịch do có trùng lặp người xem giữa các ngày.
+                <b>*Ghi chú về Tổng Reach:</b> Số liệu Reach ở đây là tổng lượt tiếp cận tích luỹ theo ngày cộng dồn (hoặc tổng kỳ từ ảnh), không đại diện cho số người tiếp cận duy nhất (Unique Reach) của toàn chiến dịch.
               </p>
               <p>
-                <b>Công thức tính toán:</b> CTR = (Clicks / Reach) × 100% • CPC = Chi phí / Clicks • CPA = Chi phí / Đơn hàng. Toàn bộ chỉ số kỳ được tính toán gia quyền trên tổng số học, tuân thủ nghiêm ngặt Contract C1 của hệ thống AdPulse.
+                <b>Công thức tính toán:</b> CTR = (Clicks / Reach) × 100% • CPC = Chi phí / Clicks • CPA = Chi phí / Đơn hàng. Toàn bộ chỉ số kỳ được tính toán gia quyền trên tổng số học từ cùng một Snapshot.
               </p>
             </div>
 
-            <section className="pt-4 text-xs whitespace-pre-wrap text-slate-700"><h3 className="font-bold mb-2">Nhận xét và gợi ý AI</h3>{aiReportText(snapshot)}</section>
+            <section className="pt-4 text-xs whitespace-pre-wrap text-slate-700">
+              <h3 className="font-bold mb-2">Nhận xét và gợi ý AI</h3>
+              {aiReportText(snapshot)}
+            </section>
+
             {/* Chữ ký xác nhận */}
             <div className="pt-8 flex items-center justify-between text-xs text-slate-700">
               <div className="text-center">
                 <p className="font-bold">Người Lập Báo Cáo</p>
-                <p className="text-[11px] text-slate-500 mt-0.5">Nguyễn Thanh Dũng</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">Nhóm AdPulse • Đề 7</p>
                 <div className="h-12 flex items-end justify-center font-serif italic text-indigo-900">
                   (Đã xác thực SSOT)
                 </div>
@@ -327,7 +348,7 @@ export const PdfExportModal: React.FC<PdfExportModalProps> = ({
 
               <div className="text-center">
                 <p className="font-bold">Người Duyệt Báo Cáo</p>
-                <p className="text-[11px] text-slate-500 mt-0.5">Trưởng Nhóm / Khách Hàng</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">Trưởng Nhóm / Ban Giám Đốc</p>
                 <div className="h-12 flex items-end justify-center text-slate-400">
                   (Ký và ghi rõ họ tên)
                 </div>

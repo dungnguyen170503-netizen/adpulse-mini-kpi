@@ -1,6 +1,6 @@
 # C4b · Spec màn hình và brief thiết kế (Trịnh Khoa)
 
-Trạng thái: **bản nháp chờ duyệt**. Thiết kế làm trên Stitch; đây là mockup, không phải app chạy thật. Dữ liệu trong thiết kế là số minh họa.
+Trạng thái: **Đã triển khai đầy đủ trong app thực tế trên nhánh `codex/khoa-ux-report-polish`** (xem biên bản & ảnh chụp trước/sau tại [`docs/khoa/ux-report-polish-handoff.md`](./ux-report-polish-handoff.md)).
 
 ## 1. Danh sách màn hình (mỗi màn có desktop / tablet / mobile)
 

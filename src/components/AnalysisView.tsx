@@ -4,12 +4,17 @@ import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Tooltip, Legend, Filler
 } from 'chart.js';
 import { CampaignReportSnapshot } from '../types/campaign';
-import { buildDailySeries, collectDataNotes, formatDateVN } from '../report/reportModel';
-import { AlertTriangle } from 'lucide-react';
+import { buildDailySeries, calendarDaysBetween, collectDataNotes, formatDateVN, sourceLabelOf } from '../report/reportModel';
+import { formatVND } from '../utils/kpiEngine';
+import { AlertTriangle, Image as ImageIcon, Info } from 'lucide-react';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Tooltip, Legend, Filler);
 
-interface Props { snapshot: CampaignReportSnapshot }
+interface Props {
+  snapshot: CampaignReportSnapshot;
+  onOpenImport?: () => void;
+  onLoadSampleDaily?: () => void;
+}
 
 const axisColor = '#94a3b8';
 const baseOptions = (unit: string) => ({
@@ -45,12 +50,138 @@ const ChartCard: React.FC<{ title: string; question: string; children: React.Rea
   </figure>
 );
 
-export const AnalysisView: React.FC<Props> = ({ snapshot }) => {
+export const AnalysisView: React.FC<Props> = ({ snapshot, onOpenImport, onLoadSampleDaily }) => {
   const { points, missingDates } = buildDailySeries(snapshot);
   const dataNotes = collectDataNotes(snapshot);
-  if (points.length === 0) {
-    return <div className="p-8 text-center text-slate-400 rounded-2xl bg-slate-900/60 border border-slate-800">Chưa có số liệu để vẽ biểu đồ. Hãy nhập hoặc nạp dữ liệu mẫu.</div>;
+
+  // Trường hợp chỉ có tổng kỳ từ ảnh chụp (PeriodSummaryRecord), không có điểm dữ liệu theo ngày
+  if (points.length === 0 && snapshot.summaryRecord) {
+    const sum = snapshot.summaryRecord;
+    const calDays = calendarDaysBetween(sum.period_start, sum.period_end);
+    return (
+      <div className="space-y-4" data-testid="summary-only-analysis">
+        <div
+          role="region"
+          aria-label="Giải thích biểu đồ tổng kỳ"
+          className="p-5 sm:p-6 rounded-2xl bg-purple-950/30 border border-purple-500/40 text-slate-100 space-y-3"
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center flex-shrink-0">
+              <ImageIcon className="w-5 h-5" aria-hidden />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-white">
+                Vì sao biểu đồ theo ngày không có điểm dữ liệu?
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                Nguồn đang xem là <b>{sourceLabelOf(snapshot)}</b> cho kỳ{' '}
+                <b>{formatDateVN(sum.period_start)} – {formatDateVN(sum.period_end)}</b>
+                {calDays ? ` (${calDays} ngày lịch)` : ''}. Ảnh gốc chỉ chứa <b>con số tổng hợp của cả kỳ</b>, không có bảng chi tiết từng ngày.
+              </p>
+              <p className="text-xs text-purple-200 flex items-center gap-1.5 pt-1">
+                <Info className="w-4 h-4 flex-shrink-0" aria-hidden />
+                <span>
+                  Quy tắc minh bạch dữ liệu: Hệ thống <b>không tự chia trung bình ra từng ngày ảo</b> để tránh vẽ biểu đồ xu hướng giả.
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {(onOpenImport || onLoadSampleDaily) && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {onOpenImport && (
+                <button
+                  type="button"
+                  onClick={onOpenImport}
+                  className="min-h-[38px] px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors"
+                >
+                  Nhập dữ liệu theo ngày
+                </button>
+              )}
+              {onLoadSampleDaily && (
+                <button
+                  type="button"
+                  onClick={onLoadSampleDaily}
+                  className="min-h-[38px] px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors"
+                >
+                  Xem thử Bộ 1 (5 ngày có biểu đồ)
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Khung đối chiếu nhanh số tổng kỳ ngay tại tab Phân tích */}
+        <div className="rounded-2xl bg-slate-900/80 border border-slate-800 overflow-x-auto">
+          <table className="w-full text-xs">
+            <caption className="text-left px-4 py-3 text-sm font-bold text-white">
+              Bảng tổng hợp cả kỳ từ ảnh chụp (KPI tính từ lõi chung)
+            </caption>
+            <thead className="text-slate-400 bg-slate-950/60">
+              <tr>
+                <th className="px-3 py-2.5 text-left">Kỳ tổng hợp</th>
+                <th className="px-3 py-2.5 text-right">Reach</th>
+                <th className="px-3 py-2.5 text-right">Click</th>
+                <th className="px-3 py-2.5 text-right">Chi phí (VND)</th>
+                <th className="px-3 py-2.5 text-right">Số đơn</th>
+                <th className="px-3 py-2.5 text-right">CTR</th>
+                <th className="px-3 py-2.5 text-right">CPC</th>
+                <th className="px-3 py-2.5 text-right">Chi phí/đơn</th>
+              </tr>
+            </thead>
+            <tbody className="text-slate-100 font-mono">
+              <tr className="border-t border-slate-800">
+                <td className="px-3 py-3 font-sans font-semibold">
+                  {formatDateVN(sum.period_start)} – {formatDateVN(sum.period_end)}
+                </td>
+                <td className="px-3 py-3 text-right">{snapshot.totals.reachSum.toLocaleString('vi-VN')}</td>
+                <td className="px-3 py-3 text-right">{snapshot.totals.clicks.toLocaleString('vi-VN')}</td>
+                <td className="px-3 py-3 text-right font-bold text-white">{formatVND(snapshot.totals.spend)}</td>
+                <td className="px-3 py-3 text-right font-bold text-emerald-400">{snapshot.totals.orders.toLocaleString('vi-VN')}</td>
+                <td className="px-3 py-3 text-right text-indigo-300">{snapshot.kpis.ctr.formatted}</td>
+                <td className="px-3 py-3 text-right text-amber-300">{snapshot.kpis.cpc.formatted}</td>
+                <td className="px-3 py-3 text-right font-bold text-emerald-300">{snapshot.kpis.cpa.formatted}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
   }
+
+  if (points.length === 0) {
+    return (
+      <div className="p-8 text-center text-slate-300 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-3">
+        <p className="text-base font-bold text-white">Chưa có số liệu để vẽ biểu đồ theo ngày</p>
+        <p className="text-xs text-slate-400">
+          Hãy bấm <b>Nhập dữ liệu</b> ở thanh trên cùng để thêm số liệu chiến dịch, hoặc chọn một <b>Dữ liệu mẫu</b> để xem biểu đồ xu hướng.
+        </p>
+        {(onOpenImport || onLoadSampleDaily) && (
+          <div className="flex flex-wrap justify-center gap-2 pt-1">
+            {onOpenImport && (
+              <button
+                type="button"
+                onClick={onOpenImport}
+                className="min-h-[38px] px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold"
+              >
+                Nhập dữ liệu
+              </button>
+            )}
+            {onLoadSampleDaily && (
+              <button
+                type="button"
+                onClick={onLoadSampleDaily}
+                className="min-h-[38px] px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700"
+              >
+                Dùng dữ liệu mẫu (Bộ 1)
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const labels = points.map(p => p.label);
   // null = ngày không có dòng dữ liệu: Chart.js để khoảng trống (spanGaps=false), KHÔNG vẽ về 0.
   const reach = points.map(p => p.reach);
