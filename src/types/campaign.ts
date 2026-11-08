@@ -64,6 +64,8 @@ export interface PeriodSummaryRecord {
   total_orders: number;
   is_aggregate_only: true;
   notes?: string;
+  imageSourceUrl?: string;
+  imageFileName?: string;
 }
 
 /**
@@ -156,4 +158,5 @@ export interface ImageOcrDraft {
   };
   dailyRows?: Partial<DailyAdRecord>[];
   ambiguities: string[]; // Các điểm mơ hồ cần người dùng chỉnh sửa trước khi lưu
+  uncertainFields?: { rowIndex?: number; field: string; reason: string }[];
 }
