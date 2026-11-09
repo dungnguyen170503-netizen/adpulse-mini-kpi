@@ -1,9 +1,10 @@
 /**
  * REPORT MODEL (Khoa · C2/U1/K2)
  * Chỉ ĐỌC từ CampaignReportSnapshot do kpiEngine (Dũng) tạo.
- * Không tính CTR/CPC/CPA ở đây. Các hàm dưới chỉ lọc kỳ, dựng trục ngày và tạo dấu vết phiên bản dữ liệu.
+ * Không tính CTR/CPC/CPA ở đây. Các hàm dưới chỉ lọc kỳ, dựng trục ngày, nhận diện nguồn và tạo dấu vết phiên bản dữ liệu.
  */
-import { CampaignReportSnapshot, DailyAdRecord } from '../types/campaign';
+import { CampaignReportSnapshot, DailyAdRecord, PeriodSummaryRecord } from '../types/campaign';
+import { calculateDailyMetrics } from '../utils/kpiEngine';
 
 export type PeriodPreset = 'all' | 'last7' | 'custom';
 
@@ -51,6 +52,108 @@ export function periodLabel(snapshot: CampaignReportSnapshot, requested?: { from
   const to = requested?.to || snapshot.meta.periodEnd;
   if (!from || !to) return 'Chưa có dữ liệu';
   return `${formatDateVN(from)} – ${formatDateVN(to)}`;
+}
+
+/**
+ * Tạo CampaignReportSnapshot chuẩn từ bản ghi tổng kỳ (PeriodSummaryRecord)
+ * Sử dụng trực tiếp calculateDailyMetrics của Dũng (kpiEngine) để lấy đúng CTR, CPC, CPA, CVR.
+ * Tuyệt đối KHÔNG sinh ra dailyRecords giả theo ngày (hasDailyBreakdown = false).
+ */
+export function buildSnapshotFromSummary(summary: PeriodSummaryRecord): CampaignReportSnapshot {
+  const kpis = calculateDailyMetrics({
+    id: summary.id,
+    date: summary.period_start,
+    spend: Number(summary.total_spend) || 0,
+    reach: Number(summary.total_reach) || 0,
+    clicks: Number(summary.total_clicks) || 0,
+    orders: Number(summary.total_orders) || 0,
+    source_type: 'image_ocr',
+    status: 'valid'
+  });
+  const zeroDivisionCount = (kpis.cpc.status === 'zero_division' || kpis.cpa.status === 'zero_division') ? 1 : 0;
+  return {
+    meta: {
+      snapshotId: `snap_sum_${summary.id}`,
+      generatedAt: new Date().toISOString(),
+      periodStart: summary.period_start,
+      periodEnd: summary.period_end,
+      totalDays: 0,
+      currency: 'VND',
+      campaignName: 'Chiến dịch Facebook Ads (Tổng kỳ từ ảnh)',
+      hasDailyBreakdown: false
+    },
+    totals: {
+      spend: Number(summary.total_spend) || 0,
+      reachSum: Number(summary.total_reach) || 0,
+      clicks: Number(summary.total_clicks) || 0,
+      orders: Number(summary.total_orders) || 0
+    },
+    kpis,
+    dailyRecords: [],
+    summaryRecord: summary,
+    dataIntegrity: {
+      isClean: zeroDivisionCount === 0,
+      missingFieldsCount: 0,
+      zeroDivisionCount,
+      duplicateDatesResolved: 0,
+      warnings: []
+    }
+  };
+}
+
+/** Kiểm tra xem snapshot có dữ liệu báo cáo hợp lệ không (bản ghi theo ngày hoặc bản ghi tổng kỳ từ ảnh). */
+export function hasReportData(snapshot: CampaignReportSnapshot): boolean {
+  return snapshot.dailyRecords.length > 0 || !!snapshot.summaryRecord;
+}
+
+/** Nhận diện nhãn nguồn dữ liệu rõ ràng cho người dùng trên Dashboard và trong 4 định dạng báo cáo. */
+export function sourceLabelOf(snapshot: CampaignReportSnapshot): string {
+  if (snapshot.summaryRecord && snapshot.dailyRecords.length === 0) {
+    const fileNote = snapshot.summaryRecord.imageFileName ? ` (${snapshot.summaryRecord.imageFileName})` : '';
+    return `Ảnh chụp tổng kỳ OCR${fileNote}`;
+  }
+  const recs = snapshot.dailyRecords;
+  if (recs.length === 0) return 'Chưa có dữ liệu';
+
+  const ids = recs.map(r => r.id);
+  if (ids.every(id => id.startsWith('b1_'))) return 'Dữ liệu mẫu · Bộ 1 (Chuẩn mực)';
+  if (ids.every(id => id.startsWith('b2_'))) return 'Dữ liệu mẫu · Bộ 2 (Lỗi/Thiếu)';
+  if (ids.every(id => id.startsWith('b3_'))) return 'Dữ liệu mẫu · Bộ 3 (Biên/Số 0/Trùng)';
+  if (ids.every(id => id.startsWith('def_'))) return 'Dữ liệu mẫu (Mặc định 10 ngày)';
+
+  const types = Array.from(new Set(recs.map(r => r.source_type)));
+  const mapType = (t: string) => {
+    if (t === 'manual') return 'Nhập tay';
+    if (t === 'excel_csv') return 'File Excel / CSV';
+    if (t === 'text_copy') return 'Dán văn bản (Clipboard)';
+    if (t === 'image_ocr') return 'Ảnh chụp OCR (Theo ngày)';
+    return 'Đã nhập';
+  };
+  const baseLabel = types.length === 1 ? mapType(types[0]) : `Kết hợp (${types.map(mapType).join(' + ')})`;
+  if (snapshot.summaryRecord) {
+    return `${baseLabel} + Ảnh tổng kỳ`;
+  }
+  return baseLabel;
+}
+
+/** Kiểm tra xem snapshot hiện tại có phải là dữ liệu mẫu hay không */
+export function isSampleDataSnapshot(snapshot: CampaignReportSnapshot): boolean {
+  if (snapshot.summaryRecord && snapshot.dailyRecords.length === 0) {
+    return snapshot.summaryRecord.id.includes('sample');
+  }
+  if (snapshot.dailyRecords.length === 0) return false;
+  return snapshot.dailyRecords.every(r =>
+    r.id.startsWith('b1_') || r.id.startsWith('b2_') || r.id.startsWith('b3_') || r.id.startsWith('def_')
+  );
+}
+
+/** Số ngày lịch trong khoảng từ..đến */
+export function calendarDaysBetween(from?: string, to?: string): number {
+  if (!from || !to) return 0;
+  const a = Date.parse(from + 'T00:00:00Z');
+  const b = Date.parse(to + 'T00:00:00Z');
+  if (isNaN(a) || isNaN(b) || b < a) return 0;
+  return Math.round((b - a) / 86400000) + 1;
 }
 
 export interface DayPoint {
@@ -137,7 +240,10 @@ export function collectDataNotes(snapshot: CampaignReportSnapshot): string[] {
     }
   }
   if (snapshot.summaryRecord) {
-    notes.push('Có số tổng kỳ lấy từ ảnh chụp, chỉ dùng ở mức tổng kỳ, không phải số theo ngày');
+    const calDays = calendarDaysBetween(snapshot.summaryRecord.period_start, snapshot.summaryRecord.period_end);
+    notes.push(
+      `Số tổng kỳ lấy từ ảnh chụp (${formatDateVN(snapshot.summaryRecord.period_start)} – ${formatDateVN(snapshot.summaryRecord.period_end)}${calDays ? `, ${calDays} ngày lịch` : ''}): chỉ dùng ở mức tổng kỳ, không tự chia thành số theo ngày.`
+    );
   }
   return notes;
 }
@@ -145,7 +251,17 @@ export function collectDataNotes(snapshot: CampaignReportSnapshot): string[] {
 /** Dấu vết nội dung dữ liệu: đổi dữ liệu hoặc kỳ → khác nhau. Dùng để phát hiện báo cáo cũ. */
 export function dataVersionOf(snapshot: CampaignReportSnapshot): string {
   const core = snapshot.dailyRecords.map(r => [r.id, r.date, r.spend, r.reach, r.clicks, r.orders].join('|')).join(';');
-  const sum = snapshot.summaryRecord ? JSON.stringify(snapshot.summaryRecord) : '';
+  const sum = snapshot.summaryRecord
+    ? [
+        snapshot.summaryRecord.id,
+        snapshot.summaryRecord.period_start,
+        snapshot.summaryRecord.period_end,
+        snapshot.summaryRecord.total_spend,
+        snapshot.summaryRecord.total_reach,
+        snapshot.summaryRecord.total_clicks,
+        snapshot.summaryRecord.total_orders
+      ].join('|')
+    : '';
   const s = `${snapshot.meta.periodStart}~${snapshot.meta.periodEnd}#${core}#${sum}`;
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;

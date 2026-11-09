@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { DailyAdRecord } from '../types/campaign';
-import { calculateDailyMetrics, formatVND } from '../utils/kpiEngine';
+import { calculateDailyMetrics } from '../utils/kpiEngine';
 import { validateRow, findDuplicateDates } from '../utils/validation';
 import {
   X,
@@ -10,9 +10,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   AlertCircle,
-  Copy,
   Layers,
-  Sparkles
+  Undo2
 } from 'lucide-react';
 
 interface MultiRowEntryModalProps {
@@ -38,7 +37,6 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
   onSave,
   existingDates
 }) => {
-  // Khởi tạo sẵn 3 dòng trống với ngày tăng dần từ hôm nay
   const [rows, setRows] = useState<DraftRow[]>(() => {
     const today = new Date();
     return [0, 1, 2].map(offset => {
@@ -55,11 +53,21 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
       };
     });
   });
+  const [history, setHistory] = useState<DraftRow[][]>([]);
 
-  if (!isOpen) return null;
+  const pushHistory = (current: DraftRow[]) => {
+    setHistory(prev => [...prev.slice(-10), current.map(r => ({ ...r }))]);
+  };
 
-  // Thêm 1 dòng trống mới
+  const handleUndo = () => {
+    if (history.length === 0) return;
+    const previous = history[history.length - 1];
+    setRows(previous);
+    setHistory(prev => prev.slice(0, -1));
+  };
+
   const handleAddRow = () => {
+    pushHistory(rows);
     let nextDate = new Date().toISOString().split('T')[0];
     if (rows.length > 0 && rows[rows.length - 1].date) {
       const last = new Date(rows[rows.length - 1].date);
@@ -83,8 +91,8 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
     ]);
   };
 
-  // Thêm nhanh 7 ngày
   const handleAddWeek = () => {
+    pushHistory(rows);
     const start = rows.length > 0 && rows[rows.length - 1].date
       ? new Date(rows[rows.length - 1].date)
       : new Date();
@@ -106,39 +114,32 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
     setRows(prev => [...prev, ...newRows]);
   };
 
-  // Cập nhật giá trị ô
   const handleRowChange = (id: string, field: keyof DraftRow, value: string) => {
+    pushHistory(rows);
     setRows(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r));
   };
 
-  // Xóa 1 dòng
   const handleDeleteRow = (id: string) => {
-    if (rows.length === 1) {
-      alert('Cần giữ lại ít nhất 1 dòng để nhập dữ liệu');
-      return;
-    }
+    if (rows.length === 1) return;
+    pushHistory(rows);
     setRows(prev => prev.filter(r => r.id !== id));
   };
 
-  // Phân tích validation & tính toán xem trước cho từng dòng
   const evaluatedRows = useMemo(() => {
-    const draftDates = rows.map(r => r.date).filter(Boolean);
     const duplicateCounts = findDuplicateDates(rows);
 
     return rows.map(row => {
       const record: Partial<DailyAdRecord> = {
         date: row.date,
-        spend: row.spend === '' ? NaN : Number(row.spend),
-        reach: row.reach === '' ? NaN : Number(row.reach),
-        clicks: row.clicks === '' ? NaN : Number(row.clicks),
-        orders: row.orders === '' ? NaN : Number(row.orders),
+        spend: row.spend.trim() === '' ? NaN : Number(row.spend),
+        reach: row.reach.trim() === '' ? NaN : Number(row.reach),
+        clicks: row.clicks.trim() === '' ? NaN : Number(row.clicks),
+        orders: row.orders.trim() === '' ? NaN : Number(row.orders)
       };
 
       const val = validateRow(record);
       const isInternalDuplicate = duplicateCounts[row.date] > 1;
       const isExistingDuplicate = existingDates.includes(row.date);
-
-      // Tính KPI xem trước
       const kpis = calculateDailyMetrics(record as DailyAdRecord);
 
       return {
@@ -163,25 +164,14 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
     });
   }, [rows, existingDates]);
 
-  // Kiểm tra tổng quát tính hợp lệ
-  const hasErrors = evaluatedRows.some(r => !r.validation.isValid);
+  if (!isOpen) return null;
+
+  const errorRowCount = evaluatedRows.filter(r => !r.validation.isValid).length;
+  const hasErrors = errorRowCount > 0;
   const internalDuplicates = evaluatedRows.filter(r => r.isInternalDuplicate);
-  const existingDuplicates = evaluatedRows.filter(r => r.isExistingDuplicate);
 
-  // Xử lý lưu
   const handleConfirmSave = () => {
-    if (hasErrors) {
-      alert('Vui lòng sửa các ô bị đánh dấu lỗi đỏ trước khi lưu!');
-      return;
-    }
-
-    if (existingDuplicates.length > 0) {
-      const confirmMsg = `Có ${existingDuplicates.length} ngày đã tồn tại trong hệ thống (${existingDuplicates.map(d => d.date).join(', ')}). Bạn có muốn tiếp tục lưu và ghi đè không?`;
-      if (!window.confirm(confirmMsg)) {
-        return;
-      }
-    }
-
+    if (hasErrors) return;
     const recordsToSave = evaluatedRows.map(r => r.parsedRecord);
     onSave(recordsToSave);
     onClose();
@@ -202,11 +192,12 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
               </h2>
             </div>
             <p className="text-xs text-slate-400 mt-1">
-              Nhập tay nhiều ngày cùng lúc • Xem trước chỉ số KPI tức thì • Kiểm tra lỗi & trùng lặp trước khi lưu
+              Nhập tay nhiều ngày cùng lúc • Xem trước KPI tức thì • Báo lỗi ngay cạnh ô cần sửa
             </p>
           </div>
           <button
             onClick={onClose}
+            aria-label="Đóng hộp thoại nhập nhiều dòng"
             className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
           >
             <X className="w-5 h-5" />
@@ -215,12 +206,11 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
 
         {/* Modal Body: Table Grid */}
         <div className="p-4 md:p-6 overflow-y-auto flex-1 space-y-4">
-          {/* Cảnh báo trùng lặp nếu có */}
           {internalDuplicates.length > 0 && (
-            <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
+            <div role="alert" className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
               <span>
-                Phát hiện ngày trùng lặp giữa các dòng nhập ({Array.from(new Set(internalDuplicates.map(d => d.date))).join(', ')}). Hệ thống sẽ cảnh báo gộp số liệu.
+                Phát hiện ngày trùng lặp giữa các dòng nhập ({Array.from(new Set(internalDuplicates.map(d => d.date))).join(', ')}). Khi lưu hệ thống sẽ hỏi bạn muốn Gộp hay Ghi đè.
               </span>
             </div>
           )}
@@ -248,43 +238,49 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
                   return (
                     <tr
                       key={row.id}
-                      className={`hover:bg-slate-800/40 transition-colors ${
+                      className={`hover:bg-slate-800/40 transition-colors align-top ${
                         hasErr ? 'bg-rose-950/20' : isInternalDuplicate ? 'bg-amber-950/20' : ''
                       }`}
                     >
-                      {/* Index */}
                       <td className="py-2.5 px-3 text-slate-500 font-sans">
                         {index + 1}
                       </td>
 
                       {/* Ngày */}
                       <td className="py-2.5 px-2">
-                        <div className="relative">
-                          <input
-                            type="date"
-                            value={row.date}
-                            onChange={(e) => handleRowChange(row.id, 'date', e.target.value)}
-                            className={`w-36 bg-slate-950 border px-2.5 py-1.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:ring-1 ${
-                              validation.errors.date
-                                ? 'border-rose-500 focus:ring-rose-500'
-                                : isInternalDuplicate
-                                ? 'border-amber-500 text-amber-300'
-                                : 'border-slate-700 focus:ring-indigo-500'
-                            }`}
-                          />
-                          {isExistingDuplicate && (
-                            <span className="block text-[10px] text-amber-400 font-sans mt-0.5">
-                              ⚠️ Ngày đã có sẵn
-                            </span>
-                          )}
-                        </div>
+                        <input
+                          type="date"
+                          aria-label={`Dòng ${index + 1} Ngày`}
+                          aria-invalid={!!validation.errors.date}
+                          value={row.date}
+                          onChange={(e) => handleRowChange(row.id, 'date', e.target.value)}
+                          className={`w-36 bg-slate-950 border px-2.5 py-1.5 rounded-lg text-xs font-mono text-white focus:outline-none focus:ring-1 ${
+                            validation.errors.date
+                              ? 'border-rose-500 focus:ring-rose-500'
+                              : isInternalDuplicate
+                              ? 'border-amber-500 text-amber-300'
+                              : 'border-slate-700 focus:ring-indigo-500'
+                          }`}
+                        />
+                        {validation.errors.date && (
+                          <span role="alert" className="block text-[10px] text-rose-400 font-sans mt-1">
+                            {validation.errors.date}
+                          </span>
+                        )}
+                        {isExistingDuplicate && (
+                          <span className="block text-[10px] text-amber-400 font-sans mt-0.5">
+                            Ngày đã có (sẽ hỏi Gộp/Ghi đè)
+                          </span>
+                        )}
                       </td>
 
                       {/* Reach */}
                       <td className="py-2.5 px-2">
                         <input
                           type="number"
-                          placeholder="0"
+                          aria-label={`Dòng ${index + 1} Reach`}
+                          aria-invalid={!!validation.errors.reach}
+                          placeholder="Nhập 0 nếu = 0"
                           min="0"
                           value={row.reach}
                           onChange={(e) => handleRowChange(row.id, 'reach', e.target.value)}
@@ -294,13 +290,20 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
                               : 'border-slate-700 focus:ring-indigo-500'
                           }`}
                         />
+                        {validation.errors.reach && (
+                          <span role="alert" className="block text-[10px] text-rose-400 font-sans mt-1">
+                            Thiếu Reach (nhập 0 nếu = 0)
+                          </span>
+                        )}
                       </td>
 
                       {/* Clicks */}
                       <td className="py-2.5 px-2">
                         <input
                           type="number"
-                          placeholder="0"
+                          aria-label={`Dòng ${index + 1} Clicks`}
+                          aria-invalid={!!validation.errors.clicks}
+                          placeholder="Nhập 0 nếu = 0"
                           min="0"
                           value={row.clicks}
                           onChange={(e) => handleRowChange(row.id, 'clicks', e.target.value)}
@@ -310,13 +313,25 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
                               : 'border-slate-700 focus:ring-indigo-500'
                           }`}
                         />
+                        {validation.errors.clicks && (
+                          <span role="alert" className="block text-[10px] text-rose-400 font-sans mt-1">
+                            Thiếu Click (nhập 0 nếu = 0)
+                          </span>
+                        )}
+                        {validation.warnings.clicks && (
+                          <span className="block text-[10px] text-amber-400 font-sans mt-1 max-w-[140px]">
+                            Click &gt; Reach
+                          </span>
+                        )}
                       </td>
 
                       {/* Spend */}
                       <td className="py-2.5 px-2">
                         <input
                           type="number"
-                          placeholder="0"
+                          aria-label={`Dòng ${index + 1} Chi phí`}
+                          aria-invalid={!!validation.errors.spend}
+                          placeholder="Nhập 0 nếu = 0"
                           min="0"
                           step="10000"
                           value={row.spend}
@@ -327,13 +342,20 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
                               : 'border-slate-700 focus:ring-indigo-500'
                           }`}
                         />
+                        {validation.errors.spend && (
+                          <span role="alert" className="block text-[10px] text-rose-400 font-sans mt-1">
+                            Thiếu Chi phí (nhập 0 nếu = 0)
+                          </span>
+                        )}
                       </td>
 
                       {/* Orders */}
                       <td className="py-2.5 px-2">
                         <input
                           type="number"
-                          placeholder="0"
+                          aria-label={`Dòng ${index + 1} Đơn hàng`}
+                          aria-invalid={!!validation.errors.orders}
+                          placeholder="Nhập 0 nếu = 0"
                           min="0"
                           value={row.orders}
                           onChange={(e) => handleRowChange(row.id, 'orders', e.target.value)}
@@ -343,6 +365,11 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
                               : 'border-slate-700 focus:ring-indigo-500'
                           }`}
                         />
+                        {validation.errors.orders && (
+                          <span role="alert" className="block text-[10px] text-rose-400 font-sans mt-1">
+                            Thiếu Số đơn (nhập 0 nếu = 0)
+                          </span>
+                        )}
                       </td>
 
                       {/* Xem Trước KPI (Live Preview) */}
@@ -373,6 +400,7 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
                       <td className="py-2.5 px-2 font-sans">
                         <input
                           type="text"
+                          aria-label={`Dòng ${index + 1} Ghi chú`}
                           placeholder="Ghi chú..."
                           value={row.notes}
                           onChange={(e) => handleRowChange(row.id, 'notes', e.target.value)}
@@ -383,8 +411,10 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
                       {/* Xóa dòng */}
                       <td className="py-2.5 px-3 text-center">
                         <button
+                          type="button"
+                          disabled={rows.length === 1}
                           onClick={() => handleDeleteRow(row.id)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 disabled:opacity-40 transition-colors"
                           title="Xóa dòng này"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -397,9 +427,9 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
             </table>
           </div>
 
-          {/* Thanh công cụ thêm dòng */}
+          {/* Thanh công cụ thêm dòng & Hoàn tác */}
           <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={handleAddRow}
@@ -416,6 +446,15 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
                 <Calendar className="w-4 h-4 text-emerald-400" />
                 <span>+ Thêm 7 ngày</span>
               </button>
+              <button
+                type="button"
+                disabled={history.length === 0}
+                onClick={handleUndo}
+                className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-700"
+              >
+                <Undo2 className="w-4 h-4 text-amber-400" />
+                <span>Hoàn tác</span>
+              </button>
             </div>
 
             <span className="text-xs text-slate-400 font-medium">
@@ -425,17 +464,17 @@ export const MultiRowEntryModal: React.FC<MultiRowEntryModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 md:px-8 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between">
+        <div className="p-4 md:px-8 border-t border-slate-800 bg-slate-900/90 flex flex-wrap items-center justify-between gap-3">
           <div className="text-xs text-slate-400">
             {hasErrors ? (
-              <span className="text-rose-400 flex items-center gap-1.5">
-                <AlertCircle className="w-4 h-4" />
-                Vui lòng nhập đầy đủ thông tin số hợp lệ
+              <span role="alert" className="text-rose-400 flex items-center gap-1.5 font-semibold">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>Còn {errorRowCount} dòng thiếu hoặc sai số liệu (hãy sửa các ô viền đỏ; nhập 0 nếu giá trị bằng 0)</span>
               </span>
             ) : (
-              <span className="text-emerald-400 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" />
-                Dữ liệu sẵn sàng để lưu vào hệ thống
+              <span className="text-emerald-400 flex items-center gap-1.5 font-semibold">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                <span>Dữ liệu hợp lệ, sẵn sàng xác nhận lưu vào hệ thống</span>
               </span>
             )}
           </div>

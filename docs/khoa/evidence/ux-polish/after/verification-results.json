@@ -1,0 +1,147 @@
+[
+  {
+    "name": "Responsive 1440px (Tổng quan): không tràn ngang",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Responsive 1440px (Báo cáo): không tràn ngang",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Responsive 834px (Tổng quan): không tràn ngang",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Responsive 834px (Báo cáo): không tràn ngang",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Responsive 390px (Tổng quan): không tràn ngang",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Mobile 390px: hiển thị thẻ tóm tắt theo ngày dễ đọc trên điện thoại",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Responsive 390px (Báo cáo): không tràn ngang",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Tách riêng cụm \"Dùng dữ liệu mẫu\" khỏi nút Nhập dữ liệu chính",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Gom 4 cách nhập dưới nút chính \"Nhập dữ liệu\"",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Bàn phím: nhấn Escape đóng menu Nhập dữ liệu",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Hiển thị rõ Nguồn đang xem, Kỳ báo cáo và Số ngày có dữ liệu ở đầu trang",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Trạng thái chưa có dữ liệu (Empty State): hiển thị hướng dẫn rõ ràng",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Thông báo lỗi cạnh trường cần sửa (Inline validation): báo rõ ô Chi phí trống và Click > Reach",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Nút Hoàn tác trong bảng nhập nhiều ngày khả dụng khi vừa sửa",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Sau khi nhập tay và xác nhận: cập nhật Nguồn Nhập tay và 3/3 ngày có dữ liệu",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Bố cục tab Báo cáo: KPI chính (Chi phí, Số đơn, Chi phí/đơn) và khung xuất nằm trên phần AI",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Tab Báo cáo hiện rõ 3 KPI quan trọng nhất cho sếp: Tổng chi phí, Số đơn hàng, Chi phí / đơn (CPA)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Trạng thái AI đang chờ: hiện rõ nút \"Hủy chờ\"",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Phần AI dài được thu gọn mặc định trong tab Báo cáo và có nút \"Mở rộng chi tiết AI\"",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Bấm \"Mở rộng chi tiết AI\" chuyển sang \"Thu gọn chi tiết AI\"",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Báo cáo cũ sau khi đổi kỳ/dữ liệu: chỉ rõ bản đang xem thuộc kỳ nào, kỳ mới là gì và có nút Cập nhật ngay",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Bấm \"Cập nhật báo cáo\" đồng bộ báo cáo sang kỳ mới",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Tổng quan (Ảnh tổng kỳ): hiển thị đúng kỳ 01/11/2026 – 07/11/2026, nguồn summary-ads.png và KPI (3.500.000 đ, 50 đơn, CPA 70.000 đ, CTR 3.00%, CPC 2.333 đ)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Phân tích (Ảnh tổng kỳ): giải thích rõ vì sao biểu đồ ngày không có điểm dữ liệu và không tự chia đều số giả",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Xuất Text (Ảnh tổng kỳ): khớp kỳ, nguồn và toàn bộ KPI",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Xuất HTML (Ảnh tổng kỳ): khớp kỳ, nguồn và toàn bộ KPI",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Xuất PPTX (Ảnh tổng kỳ): khớp kỳ, nguồn và toàn bộ KPI, slide 3 giải thích tổng kỳ",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Xuất PDF (Ảnh tổng kỳ): khớp kỳ, nguồn và toàn bộ KPI",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "Không phát sinh lỗi runtime trên trang",
+    "ok": true,
+    "detail": ""
+  }
+]

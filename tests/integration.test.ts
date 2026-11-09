@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculatePeriodAggregates } from '../src/utils/kpiEngine';
-import { DATASET_1_NORMAL, DATASET_2_DIRTY, DATASET_3_EDGE } from '../src/data/sampleData';
+import { DATASET_1_NORMAL, DATASET_2_DIRTY, DATASET_3_EDGE, SAMPLE_PERIOD_SUMMARY } from '../src/data/sampleData';
 import { buildTextReport } from '../src/report/textReport';
 import { buildHtmlReport } from '../src/report/htmlReport';
-import { buildDailySeries, dataVersionOf } from '../src/report/reportModel';
+import { buildDailySeries, buildSnapshotFromSummary, dataVersionOf, sourceLabelOf } from '../src/report/reportModel';
 import { canonicalSnapshot, requestSchema, analysisSchema } from '../server/ai';
 import { normalizeNumber, normalizeDate, applyColumnMapping } from '../src/utils/fileParser';
 import { validateRow } from '../src/utils/validation';
@@ -56,4 +56,23 @@ test('Đúng 3 gợi ý; HTML escape nội dung AI và Text cùng snapshot', () 
   s.ai = { status: 'ready', source: 'Test fixture', model: 'fixture', generatedAt: '2026-11-08', snapshotId: s.meta.snapshotId, dataVersion: dataVersionOf(s), summary: '<script>alert(1)</script>', suggestions: [suggestion, suggestion, suggestion] };
   assert.ok(buildTextReport(s, '1').includes(s.ai.summary));
   const html = buildHtmlReport(s, '1'); assert.ok(!html.includes('<script>')); assert.ok(html.includes('&lt;script&gt;'));
+});
+test('Tổng kỳ từ ảnh OCR: không tạo bản ghi ngày giả, đồng bộ kỳ, nguồn và KPI giữa Dashboard, Server, Text, HTML', () => {
+  const s = buildSnapshotFromSummary(SAMPLE_PERIOD_SUMMARY);
+  assert.equal(s.dailyRecords.length, 0);
+  assert.equal(s.meta.totalDays, 0);
+  assert.equal(s.meta.periodStart, '2026-11-01');
+  assert.equal(s.meta.periodEnd, '2026-11-07');
+  assert.equal(sourceLabelOf(s), 'Ảnh chụp tổng kỳ OCR (summary-ads.png)');
+  assert.deepEqual([s.totals.spend, s.totals.reachSum, s.totals.clicks, s.totals.orders], [3500000, 50000, 1500, 50]);
+  assert.deepEqual([s.kpis.ctr.formatted, s.kpis.cpc.formatted, s.kpis.cpa.formatted], ['3.00%', '2.333 đ', '70.000 đ']);
+  assert.equal(buildDailySeries(s).points.length, 0);
+  assert.equal(requestSchema.safeParse({ snapshot: s }).success, true);
+  assert.deepEqual(canonicalSnapshot(s).kpis, s.kpis);
+  const text = buildTextReport(s, dataVersionOf(s));
+  const html = buildHtmlReport(s, dataVersionOf(s));
+  for (const token of ['01/11/2026 – 07/11/2026', 'Ảnh chụp tổng kỳ OCR', '3.500.000 đ', '50', '70.000 đ', '3.00%', '2.333 đ', 'Chỉ có tổng kỳ']) {
+    assert.ok(text.includes(token), `Text report missing ${token}`);
+    assert.ok(html.includes(token), `HTML report missing ${token}`);
+  }
 });

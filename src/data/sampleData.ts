@@ -2,7 +2,7 @@
  * REFERENCE TEST DATASETS (Adhering to C1 Contract & Math Verification)
  */
 
-import { DailyAdRecord } from '../types/campaign';
+import { DailyAdRecord, PeriodSummaryRecord } from '../types/campaign';
 
 /**
  * BỘ 1: DỮ LIỆU CHUẨN MỰC (5 ngày E-Commerce sạch)
@@ -195,3 +195,21 @@ export const DEFAULT_CAMPAIGN_DATA: DailyAdRecord[] = [
   { id: 'def_9', date: '2026-11-04', campaign_name: 'Flash Sale Tháng 11', spend: 850000, reach: 13500, clicks: 460, orders: 20, source_type: 'manual', status: 'valid', notes: 'Bắt đầu có dấu hiệu bão hòa tệp' },
   { id: 'def_10', date: '2026-11-05', campaign_name: 'Flash Sale Tháng 11', spend: 900000, reach: 14200, clicks: 480, orders: 22, source_type: 'manual', status: 'valid', notes: 'Scale ngân sách thành công' }
 ];
+
+/**
+ * MẪU ẢNH TỔNG KỲ (Period Summary OCR Fixture theo chuẩn bàn giao của Dũng)
+ * Kỳ: 01/11/2026 – 07/11/2026 | Spend: 3.500.000 đ | Reach: 50.000 | Clicks: 1.500 | Orders: 50
+ * KPI kỳ vọng: CTR 3.00% | CPC 2.333 đ | CPA 70.000 đ | CVR 3.33%
+ */
+export const SAMPLE_PERIOD_SUMMARY: PeriodSummaryRecord = {
+  id: 'summary_1731067200000_sample',
+  period_start: '2026-11-01',
+  period_end: '2026-11-07',
+  total_spend: 3500000,
+  total_reach: 50000,
+  total_clicks: 1500,
+  total_orders: 50,
+  is_aggregate_only: true,
+  imageFileName: 'summary-ads.png',
+  notes: 'Trích xuất OCR Meta Ads Overview (Độ tin cậy: 91%)'
+};

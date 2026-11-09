@@ -1,6 +1,6 @@
 # C4a · Luồng người dùng và bộ lọc kỳ (Trịnh Khoa)
 
-Trạng thái: **bản nháp chờ Dũng/Lộc review**. Chưa code.
+Trạng thái: **Đã hoàn thiện & kiểm thử E2E trên nhánh `codex/khoa-ux-report-polish`** (xem chi tiết tại [`docs/khoa/ux-report-polish-handoff.md`](./ux-report-polish-handoff.md)).
 
 ## 1. Luồng chính (người mới, không cần hướng dẫn)
 
